@@ -1,4 +1,4 @@
-grammar Mx;//copy from Yx
+grammar Mx;//modify from Yx
 
 program: 'int main()' suite EOF;
 
@@ -11,13 +11,18 @@ statement
     | varDef                                                #vardefStmt
     | If '(' expression ')' trueStmt=statement 
         (Else falseStmt=statement)?                         #ifStmt
+    | While '(' expression ')' statement                    #whileStmt
     | Return expression? ';'                                #returnStmt
+    | Break ';'                                             #breakStmt
+    | Continue ';'                                          #continueStmt
     | expression ';'                                        #pureExprStmt
     | ';'                                                   #emptyStmt
     ;
 
 expression
     : primary                                               #atomExpr
+    | expression op=('++' | '--')                           #suffixExpr
+    | <assoc=right> op=('+'|'-'|'++'|'--') expression       #prefixExpr
     | expression op=('+' | '-') expression                  #binaryExpr
     | expression op=('==' | '!=' ) expression               #binaryExpr
     | <assoc=right> expression '=' expression               #assignExpr
@@ -37,6 +42,9 @@ Int : 'int';
 If : 'if';
 Else : 'else';
 Return : 'return';
+While : 'while';
+Break : 'break';
+Continue : 'continue';
 
 LeftParen : '(';
 RightParen : ')';
@@ -54,6 +62,11 @@ RightShift : '>>';
 
 Plus : '+';
 Minus : '-';
+PlusPlus : '++';
+MinusMinus : '--';
+Star : '*';
+Div : '/';
+Mod : '%';
 
 And : '&';
 Or : '|';
