@@ -1,8 +1,22 @@
-grammar Mx;//modify from Yx
+grammar Mx;
 
-program: 'int main()' suite EOF;
+program : programSegment* EOF;
 
-varDef : Int Identifier ('=' expression)? ';';
+programSegment : varDef | funcDef | classDef;
+
+varDef : type singleVarDef (',' singleVarDef)* ';';
+funcDef : type? Identifier '(' parameterList? ')' suite;
+classDef : Class Identifier '{' (varDef|funcDef)* '}' ';';
+
+singleVarDef : Identifier ('=' expression)?;
+parameterList : parameter (',' parameter)*;
+parameter : type Identifier;
+
+basicType : Bool | Int | String;
+type
+    : (basicType | Identifier) ('[' ']')*
+    | Void
+    ;
 
 suite : '{' statement* '}';
 
@@ -11,6 +25,8 @@ statement
     | varDef                                                #vardefStmt
     | If '(' expression ')' trueStmt=statement 
         (Else falseStmt=statement)?                         #ifStmt
+    | For '(' init=expression? ';' cond=expression? ';'
+        incr=expression? ')' statement                      #forStmt
     | While '(' expression ')' statement                    #whileStmt
     | Return expression? ';'                                #returnStmt
     | Break ';'                                             #breakStmt
@@ -21,30 +37,67 @@ statement
 
 expression
     : primary                                               #atomExpr
+    | expression '.' Identifier                             #memberExpr
+    | <assoc=right> 'new' creator                           #newExpr
+    | expression '[' expression ']'                         #subscript
+    | expression '(' expressionList? ')'                    #funcCall
     | expression op=('++' | '--')                           #suffixExpr
-    | <assoc=right> op=('+'|'-'|'++'|'--') expression       #prefixExpr
+    | <assoc=right> op=('+' | '-' | '++' | '--') expression #prefixExpr
+    | <assoc=right> op=('~' | '!' ) expression              #prefixExpr
+    | expression op=('*' | '/' | '%') expression            #binaryExpr
     | expression op=('+' | '-') expression                  #binaryExpr
+    | expression op=('<<' | '>>') expression                #binaryExpr
+    | expression op=('<' | '>' | '>=' | '<=') expression    #binaryExpr
     | expression op=('==' | '!=' ) expression               #binaryExpr
+    | expression op='&' expression                          #binaryExpr
+    | expression op='^' expression                          #binaryExpr
+    | expression op='|' expression                          #binaryExpr
+    | expression '&&' expression                            #binaryExpr
+    | expression '||' expression                            #binaryExpr
     | <assoc=right> expression '=' expression               #assignExpr
     ;
 
+expressionList : expression (',' expression)*;
+
 primary
     : '(' expression ')'
+    | This
     | Identifier 
     | literal 
     ;
 
 literal
     : DecimalInteger
+    | StringLiteral
+    | boolValue=(True | False)
+    | Null
     ;
 
+creator
+     : (basicType | Identifier) ('[' expression ']')+ ('[' ']')+ ('[' expression ']')+ #errorCreator
+     | (basicType | Identifier) ('[' expression ']')+ ('[' ']')* #arrayCreator
+     | (basicType | Identifier) '(' ')'                          #classCreator
+     | (basicType | Identifier)                                  #basicCreator
+     ;
+
 Int : 'int';
+Bool : 'bool';
+String : 'string';
+Void : 'void';
+Null : 'null';
 If : 'if';
 Else : 'else';
 Return : 'return';
 While : 'while';
+For : 'for';
 Break : 'break';
 Continue : 'continue';
+Switch: 'switch';
+Class : 'class';
+New : 'new';
+This : 'this';
+True : 'true';
+False : 'false';
 
 LeftParen : '(';
 RightParen : ')';
@@ -84,6 +137,12 @@ Comma : ',';
 Assign : '=';
 Equal : '==';
 NotEqual : '!=';
+
+Dot : '.';
+
+StringLiteral: '"' (ESC|.)*? '"';
+fragment
+ESC: '\\"' | '\\n' | '\\\\';
 
 Identifier
     : [a-zA-Z] [a-zA-Z_0-9]*
