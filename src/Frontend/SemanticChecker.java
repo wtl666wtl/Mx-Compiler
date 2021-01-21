@@ -246,9 +246,9 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override public void visit(memberExprNode it) {
         it.caller.accept(this);
-        if (it.caller.type.isClass()) throw new semanticError("memberExpr error ", it.pos);
+        if (!it.caller.type.isClass()) throw new semanticError("memberExpr error ", it.pos);
         classType theClass = (classType) it.caller.type;
-        if(!theClass.localScope.containsMember(it.member, false)) throw new semanticError("funCallExpr error ", it.pos);
+        if(!theClass.localScope.containsMember(it.member, false)) throw new semanticError("memberExpr error ", it.pos);
         it.memberSubstance = theClass.localScope.getMember(it.member, it.pos,false);
         it.type = it.memberSubstance.type;
     }
