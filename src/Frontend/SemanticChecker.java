@@ -150,8 +150,10 @@ public class SemanticChecker implements ASTVisitor {
     @Override public void visit(assignExprNode it) {
         it.rhs.accept(this);
         it.lhs.accept(this);
-        if (it.rhs.type != it.lhs.type) throw new semanticError("assignExpr error", it.pos);
-        if (!it.lhs.canLeft) throw new semanticError("assignExpr error", it.lhs.pos);
+        if (!it.rhs.type.isSame(it.lhs.type)){
+            throw new semanticError("assignExpr error1", it.pos);
+        }
+        if (!it.lhs.canLeft) throw new semanticError("assignExpr error2", it.lhs.pos);
         it.type = it.rhs.type;
     }
 
