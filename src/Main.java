@@ -19,8 +19,7 @@ import java.io.InputStream;
 public class Main {
     public static void main(String[] args) throws Exception{
 
-        String name = "C:\\Users\\23510\\Downloads\\Compiler-2021-testcases-6958d31c7c7a2736eda184072c247b34402413af\\sema\\symbol-package\\symbol-1.mx";
-        InputStream input = new FileInputStream(name);
+        InputStream input = System.in;
 
         try {
             RootNode ASTRoot;
