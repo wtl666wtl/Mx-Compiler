@@ -119,16 +119,27 @@ public class SemanticChecker implements ASTVisitor {
     @Override public void visit(ifStmtNode it) {
         it.condition.accept(this);
         if (!it.condition.type.isBool()) throw new semanticError("if error: wrong type", it.condition.pos);
+        nowScope = new Scope(nowScope);
+        it.thenStmt.scope = nowScope;
         it.thenStmt.accept(this);
-        if (it.elseStmt != null) it.elseStmt.accept(this);
+        nowScope = nowScope.fScope;
+        if (it.elseStmt != null) {
+            nowScope = new Scope(nowScope);
+            it.elseStmt.scope = nowScope;
+            it.elseStmt.accept(this);
+            nowScope = nowScope.fScope;
+        }
     }
 
     @Override public void visit(whileStmtNode it) {
         it.condition.accept(this);
         if (!it.condition.type.isBool()) throw new semanticError("while error: wrong type", it.condition.pos);
+        nowScope = new Scope(nowScope);
+        it.body.scope = nowScope;
         loops.push(it);
         it.body.accept(this);
         loops.pop();
+        nowScope = nowScope.fScope;
     }
 
     @Override public void visit(forStmtNode it) {
@@ -142,9 +153,12 @@ public class SemanticChecker implements ASTVisitor {
             it.condition.accept(this);
             if (!it.condition.type.isBool()) throw new semanticError("for error: wrong type", it.condition.pos);
         }
+        nowScope = new Scope(nowScope);
+        it.body.scope = nowScope;
         loops.push(it);
         it.body.accept(this);
         loops.pop();
+        nowScope = nowScope.fScope;
     }
 
     @Override public void visit(assignExprNode it) {
