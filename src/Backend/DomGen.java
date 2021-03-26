@@ -33,6 +33,7 @@ public class DomGen {
         minVer.put(blk, blk);
 
         blk.sucblks.forEach(sucblk -> {
+            System.out.println("F@Q" + sucblk.name);
             if(!dfsOrder.containsKey(sucblk)){
                 dfs(sucblk);
                 father.put(sucblk, blk);
@@ -48,6 +49,8 @@ public class DomGen {
     }
 
     public Block eval(Block it){
+        System.out.println("eval: " + it.name);
+        System.out.println("eval: " + minVer.get(it));
         if(union.get(it) != union.get(union.get(it))){
             if(dfsOrder.get(sDom.get(minVer.get(it))) > dfsOrder.get(sDom.get(eval(union.get(it)))))
                 minVer.put(it, eval(union.get(it)));
@@ -67,12 +70,17 @@ public class DomGen {
 
         for (int i = 0; i <= total; i++) {
             tub.add(new ArrayList<>());
+            if(i > 0)System.out.print(" " + dfsIndex.get(i).name);
         }
+        System.out.println("");
 
         for (int i = total; i > 1; i--) {
             Block blk = dfsIndex.get(i);
             for(Block preblk : blk.preblks){
                 Block evalblk = eval(preblk);
+                System.out.println(sDom.get(blk).name);
+                System.out.println(evalblk.name);
+                System.out.println(sDom.get(evalblk).name);
                 if(dfsOrder.get(sDom.get(blk)) > dfsOrder.get(sDom.get(evalblk)))
                     sDom.put(blk, sDom.get(evalblk));
             }

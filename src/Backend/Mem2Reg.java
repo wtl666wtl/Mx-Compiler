@@ -32,7 +32,9 @@ public class Mem2Reg {
     }
 
     public void workFunc(Function func){
-        new DomGen(func).workFunc();
+        System.out.println("#########################");
+        System.out.println(func.name);
+        new DomGen(func).workFunc();//new DomGen(func).workFunc();
 
         func.funcBlocks.forEach(blk -> {
             allocLdMap.put(blk, new HashSet<>());
