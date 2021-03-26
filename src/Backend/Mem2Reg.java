@@ -96,10 +96,10 @@ public class Mem2Reg {
                             if(!allocPhiMap.get(df).containsKey(addr)){
                                 Register rd = new Register(addr.name + "_phi_Reg", storeVal.type);
                                 Phi phi = new Phi(rd, df, new phiInfo());
-                                //System.out.println("####");
-                                //System.out.println(df.name);
-                                //System.out.println(rd.name);
-                                //System.out.println("####");
+                                System.out.println("####");
+                                System.out.println(df.name);
+                                System.out.println(rd.name);
+                                System.out.println("####");
                                 df.addPhi(phi);
                                 if(!allocStMap.get(df).containsKey(addr)){
                                     allocStMap.get(df).put(addr, rd);
@@ -135,7 +135,10 @@ public class Mem2Reg {
                     else{
                         Block curblk = blk.iDom;
                         while(true){
-                            if(allocStMap.get(curblk).containsKey(addr)){
+                            System.out.println(blk.name);
+                            System.out.println(blk.iDom);
+                            //if(allocStMap.containsKey(curblk))
+                                if(allocStMap.get(curblk).containsKey(addr)){
                                 replace = allocStMap.get(curblk).get(addr);
                                 break;
                             } else curblk = curblk.iDom;

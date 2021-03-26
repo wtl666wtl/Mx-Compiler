@@ -111,5 +111,11 @@ public class DomGen {
                 }
             }
         }
+
+        for (int i = 1; i < dfsIndex.size(); i++) {
+            System.out.println("block : " + dfsIndex.get(i).name);
+            if(dfsIndex.get(i).iDom != null)System.out.println("iDom : " + dfsIndex.get(i).iDom.name);
+        }
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@");
     }
 }

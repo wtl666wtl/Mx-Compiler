@@ -308,7 +308,8 @@ public class IRBuilder implements ASTVisitor {
             rtRet.addTerminator(new Ret(rtRet, retVal));
             curFunc.outblk = rtRet;
             curFunc.funcBlocks.add(rtRet);
-        }else curFunc.outblk = returnList.get(0).blk;
+        }else if(returnList.size() == 1) curFunc.outblk = returnList.get(0).blk;
+        else curFunc.outblk = curblk;
 
         curFunc.varPtrs.forEach(varPtr -> {
             if( ((IRPointerType)varPtr.type).pointTo instanceof IRPointerType )
@@ -404,7 +405,7 @@ public class IRBuilder implements ASTVisitor {
             if(!curblk.isTerminated)curblk.addTerminator(new Br(curblk, null, terminalblk, null));
         }
         if (trueblk.returnTerminated() && falseblk.returnTerminated()) return;
-
+        //if (trueblk.isTerminated && falseblk.isTerminated) return;
         curblk = terminalblk;
         if(curFunc != null)curFunc.funcBlocks.add(curblk);
     }
@@ -418,6 +419,13 @@ public class IRBuilder implements ASTVisitor {
         it.incrblk = incrblk;
         it.terminalblk = terminalblk;
         if(it.init != null)it.init.accept(this);
+
+        /*if(it.condition == null && it.body == null){
+            if(!curblk.isTerminated)curblk.addTerminator(new Br(curblk, null, terminalblk, null));
+            curblk = terminalblk;
+            if(curFunc != null)curFunc.funcBlocks.add(curblk);
+            return;
+        }*/
 
         if(it.condition != null) {
             curblk.addTerminator(new Br(curblk, null, condblk, null));
@@ -438,7 +446,15 @@ public class IRBuilder implements ASTVisitor {
         System.out.println("` " + curblk.name);
         it.body.accept(this);
         System.out.println(curblk.isTerminated);
-        if(!curblk.isTerminated) curblk.addTerminator(new Br(curblk, null, incrblk, null));
+        if(!curblk.isTerminated) {
+            if(it.condition != null)curblk.addTerminator(new Br(curblk, null, incrblk, null));
+            else{
+                curblk.addTerminator(new Br(curblk, null, terminalblk, null));
+                curblk = terminalblk;
+                if(curFunc != null)curFunc.funcBlocks.add(curblk);
+                return;
+            }
+        }
         else {
             curblk = terminalblk;
             if(curFunc != null)curFunc.funcBlocks.add(curblk);return;
@@ -458,9 +474,9 @@ public class IRBuilder implements ASTVisitor {
     }
 
     @Override public void visit(whileStmtNode it) {
-        Block bodyblk = new Block("for_body");
-        Block condblk = new Block("for_cond");
-        Block terminalblk = new Block("for_terminal");
+        Block bodyblk = new Block("while_body");
+        Block condblk = new Block("while_cond");
+        Block terminalblk = new Block("while_terminal");
 
         it.terminalblk = terminalblk;
 
@@ -485,6 +501,10 @@ public class IRBuilder implements ASTVisitor {
 
         it.body.accept(this);
         if(!curblk.isTerminated) curblk.addTerminator(new Br(curblk, null, condblk, null));
+       // else {
+        //    curblk = terminalblk;
+        //    if(curFunc != null)curFunc.funcBlocks.add(curblk);return;
+        //}
 
         curblk = terminalblk;
         if(curFunc != null)curFunc.funcBlocks.add(curblk);
