@@ -32,6 +32,7 @@ public class globalScope extends Scope {
         tmp=new funType("length");
         tmp.localScope=(new funScope(this));
         tmp.funType=intType;
+        tmp.isMethod = true;
         stringType.defineMethod("length",tmp,pos);
 
         tmp=new funType("substring");
@@ -39,17 +40,20 @@ public class globalScope extends Scope {
         tmp.addParameter(new substance("left",intType,false),pos);
         tmp.addParameter(new substance("right",intType,false),pos);
         tmp.funType=stringType;
+        tmp.isMethod = true;
         stringType.defineMethod("substring",tmp,pos);
 
         tmp=new funType("parseInt");
         tmp.localScope=(new funScope(this));
         tmp.funType=intType;
+        tmp.isMethod = true;
         stringType.defineMethod("parseInt",tmp,pos);
 
         tmp=new funType("ord");
         tmp.localScope=(new funScope(this));
         tmp.addParameter(new substance("pos",intType,false),pos);
         tmp.funType=intType;
+        tmp.isMethod = true;
         stringType.defineMethod("ord",tmp,pos);
 
         types.put("string",stringType);
