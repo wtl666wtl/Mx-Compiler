@@ -124,7 +124,7 @@ public class InstSelector {
                 regMap.put(func.funType.paramList.get(i), param);
                 AsmFunc.params.add(param);
             }*/
-            func.funType.paramList.forEach(parameter -> AsmFunc.params.add(getAsmReg(parameter)));
+            //func.funType.paramList.forEach(parameter -> AsmFunc.params.add(getAsmReg(parameter)));
             AsmRt.funcs.add(AsmFunc);
         });
         rt.funcs.forEach((funcName, func) -> visitFounc(func));
@@ -133,6 +133,7 @@ public class InstSelector {
     void visitFounc(Function func){
         curFunc = funcMap.get(func);
         vregCounter = 0;
+        func.funType.paramList.forEach(parameter -> curFunc.params.add(getAsmReg(parameter)));
         AsmBlock inblk = curFunc.inblk, outblk = curFunc.outblk;
         ArrayList<VirtualReg> calleeMap = new ArrayList<>();
         //sp
@@ -140,11 +141,11 @@ public class InstSelector {
         stackLength.order = -1;
         inblk.addInst(new IType(AsmRt.phyRegs.get(2), inblk, AsmRt.phyRegs.get(2), stackLength, calType.add));
         //if(func.name == "__init")System.out.println(vregCounter);
-        AsmRt.calleeRegs.forEach(reg -> {
+        /*AsmRt.calleeRegs.forEach(reg -> {
             VirtualReg vreg = new VirtualReg(vregCounter++, 4);
             calleeMap.add(vreg);
             inblk.addInst(new Mv(vreg, inblk, reg));
-        });
+        });*/
         //ra
         VirtualReg vreg = new VirtualReg(vregCounter++, 4);
         inblk.addInst(new Mv(vreg, inblk, AsmRt.phyRegs.get(1)));
@@ -166,9 +167,9 @@ public class InstSelector {
             curFunc.blks.add(blkMap.get(blk));
         });
 
-        for (int i = 0; i < AsmRt.calleeRegs.size(); i++) {
+        /*for (int i = 0; i < AsmRt.calleeRegs.size(); i++) {
             outblk.addInst(new Mv(AsmRt.calleeRegs.get(i), outblk, calleeMap.get(i)));
-        }
+        }*/
         outblk.addInst(new Mv(AsmRt.phyRegs.get(1), outblk, vreg));
         outblk.addInst(new IType(AsmRt.phyRegs.get(2), outblk,
                 AsmRt.phyRegs.get(2), new StackLengthImm(0), calType.add));
