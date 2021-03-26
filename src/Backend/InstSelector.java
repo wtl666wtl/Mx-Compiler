@@ -262,6 +262,7 @@ public class InstSelector {
                 curblk.addInst(new Mv(getAsmReg(it.rd), curblk, AsmRt.phyRegs.get(10)));
             } else if(inst instanceof Call){
                 Call it = (Call) inst;
+                //System.out.println(it.params.size());
                 for (int j = 0; j < Integer.min(8, it.params.size()); j++) {
                     Reg reg = getAsmReg(it.params.get(j));
                     if(reg instanceof GlobalReg)

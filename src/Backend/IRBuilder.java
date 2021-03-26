@@ -820,7 +820,7 @@ public class IRBuilder implements ASTVisitor {
                 pd.accept(this);
                 params.add(getPointer(pd.operand, true));
             });
-
+            //System.out.println(func.isMethod);
             curblk.addInst(new Call((Register)it.operand, curblk, func.IRFunc, params));
             if(!rt.builtInFuncs.containsKey(func.IRFunc.name))curFunc.callFuncs.add(func.IRFunc);
         }
