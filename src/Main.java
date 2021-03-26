@@ -1,10 +1,9 @@
 import AST.RootNode;
-import Frontend.ASTBuilder;
-import Frontend.SymbolCollector;
-import Frontend.SemanticChecker;
-import Frontend.TypeCollector;
-import Parser.MxLexer;
-import Parser.MxParser;
+import Assembly.*;
+import Backend.*;
+import MIR.*;
+import Frontend.*;
+import Parser.*;
 import Util.MxErrorListener;
 import Util.error.error;
 import Util.scope.globalScope;
@@ -14,13 +13,16 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.PrintStream;
 
 
 public class Main {
     public static void main(String[] args) throws Exception{
 
-        InputStream input = System.in;
+        ///String name = "C:\\Users\\23510\\Downloads\\Compiler-2021-testcases\\codegen\\e1.mx";
+        //InputStream input = new FileInputStream(name);
 
+        InputStream input = System.in;
         try {
             RootNode ASTRoot;
             globalScope gScope = new globalScope();
@@ -34,10 +36,23 @@ public class Main {
             ParseTree parseTreeRoot = parser.program();
             ASTBuilder astBuilder = new ASTBuilder();
             ASTRoot = (RootNode)astBuilder.visit(parseTreeRoot);
-            new SymbolCollector(gScope).visit(ASTRoot);
-            new TypeCollector(gScope).visit(ASTRoot);
-            new SemanticChecker(gScope).visit(ASTRoot);
 
+            rootNode rt = new rootNode();
+
+            new SymbolCollector(gScope, rt).visit(ASTRoot);
+            new TypeCollector(gScope).visit(ASTRoot);
+            new SemanticChecker(gScope, rt).visit(ASTRoot);
+
+            new IRBuilder(gScope, rt).visit(ASTRoot);
+            new Mem2Reg(rt).work();
+            new SolvePhi(rt).run();
+
+            AsmRootNode AsmRt = new AsmRootNode();
+            new InstSelector(AsmRt).visitRt(rt);
+            new RegAlloc(AsmRt).work();
+
+            PrintStream pst = new PrintStream("output.s");
+            new AsmPrinter(AsmRt, pst).print();
         } catch (error er) {
             System.err.println(er.toString());
             throw new RuntimeException();
