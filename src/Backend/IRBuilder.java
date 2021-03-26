@@ -406,8 +406,8 @@ public class IRBuilder implements ASTVisitor {
         }
         if (trueblk.returnTerminated() && falseblk.returnTerminated()) return;
         //if (trueblk.isTerminated && falseblk.isTerminated) return;
-        curblk = terminalblk;
-        if(curFunc != null)curFunc.funcBlocks.add(curblk);
+        if(!terminalblk.preblks.isEmpty()){curblk = terminalblk;
+        if(curFunc != null)curFunc.funcBlocks.add(curblk);}
     }
 
     @Override public void visit(forStmtNode it){
@@ -501,7 +501,7 @@ public class IRBuilder implements ASTVisitor {
 
         it.body.accept(this);
         if(!curblk.isTerminated) curblk.addTerminator(new Br(curblk, null, condblk, null));
-       // else {
+        //else {
         //    curblk = terminalblk;
         //    if(curFunc != null)curFunc.funcBlocks.add(curblk);return;
         //}
