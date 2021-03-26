@@ -8,6 +8,7 @@ abstract public class Type{
     }//string -> CLASS
 
     public TypeCategory type;
+    public int size = 0;
 
     abstract public boolean isSame(Type other);
 

@@ -8,6 +8,7 @@ public class arrayType extends Type{
         this.baseType=baseType;
         this.dim = dim;
         this.type = TypeCategory.ARRAY;
+        size = 32;
     }
 
     public arrayType(Type lowerType){

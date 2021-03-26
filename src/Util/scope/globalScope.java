@@ -36,8 +36,8 @@ public class globalScope extends Scope {
 
         tmp=new funType("substring");
         tmp.localScope=(new funScope(this));
-        tmp.addParameter(new substance("left",intType),pos);
-        tmp.addParameter(new substance("right",intType),pos);
+        tmp.addParameter(new substance("left",intType,false),pos);
+        tmp.addParameter(new substance("right",intType,false),pos);
         tmp.funType=stringType;
         stringType.defineMethod("substring",tmp,pos);
 
@@ -48,7 +48,7 @@ public class globalScope extends Scope {
 
         tmp=new funType("ord");
         tmp.localScope=(new funScope(this));
-        tmp.addParameter(new substance("pos",intType),pos);
+        tmp.addParameter(new substance("pos",intType,false),pos);
         tmp.funType=intType;
         stringType.defineMethod("ord",tmp,pos);
 
@@ -56,25 +56,25 @@ public class globalScope extends Scope {
 
         tmp=new funType("print");
         tmp.localScope=(new funScope(this));
-        tmp.addParameter(new substance("str",stringType),pos);
+        tmp.addParameter(new substance("str",stringType,false),pos);
         tmp.funType=voidType;
         defineMethod("print",tmp,pos);
 
         tmp=new funType("println");
         tmp.localScope=(new funScope(this));
-        tmp.addParameter(new substance("str",stringType),pos);
+        tmp.addParameter(new substance("str",stringType,false),pos);
         tmp.funType=voidType;
         defineMethod("println",tmp,pos);
 
         tmp=new funType("printInt");
         tmp.localScope=(new funScope(this));
-        tmp.addParameter(new substance("n",intType),pos);
+        tmp.addParameter(new substance("n",intType,false),pos);
         tmp.funType=voidType;
         defineMethod("printInt",tmp,pos);
 
         tmp=new funType("printlnInt");
         tmp.localScope=(new funScope(this));
-        tmp.addParameter(new substance("n",intType),pos);
+        tmp.addParameter(new substance("n",intType,false),pos);
         tmp.funType=voidType;
         defineMethod("printlnInt",tmp,pos);
 
@@ -90,7 +90,7 @@ public class globalScope extends Scope {
 
         tmp=new funType("toString");
         tmp.localScope=(new funScope(this));
-        tmp.addParameter(new substance("n",intType),pos);
+        tmp.addParameter(new substance("n",intType,false),pos);
         tmp.funType=stringType;
         defineMethod("toString",tmp,pos);
 
@@ -118,5 +118,9 @@ public class globalScope extends Scope {
     public Type getTypeFromName(String name, position pos) {
         if (types.containsKey(name)) return types.get(name);
         throw new semanticError("undefine", pos);
+    }
+
+    public Type getStringType(){
+        return types.get("string");
     }
 }

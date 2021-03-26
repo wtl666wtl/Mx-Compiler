@@ -1,6 +1,7 @@
 package Util.type;
 
 import AST.funNode;
+import MIR.Function;
 import Util.position;
 import Util.error.internalError;
 import Util.scope.funScope;
@@ -11,12 +12,14 @@ public class funType extends BaseType{
     public Type funType;
     public funScope localScope;
     public boolean isMethod;
+    public Function IRFunc;
 
     public funType(String name){
         super("funType" + name);
         this.funName = name;
         this.type = TypeCategory.FUN;
         this.isMethod = false;
+        size = -1;
     }
 
     public void addParameter(substance x, position pos){
