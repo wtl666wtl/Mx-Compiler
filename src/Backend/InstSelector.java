@@ -209,6 +209,10 @@ public class InstSelector {
                 }
             } else if(inst instanceof Binary){
                 Binary it = (Binary) inst;
+                //if((it.opCode == Binary.binaryOpType.mul || it.opCode == Binary.binaryOpType.add)){
+                //System.out.print(it.rd.name + " ");
+                //System.out.print((it.lhs) + " ");
+                //System.out.println((it.rhs)); }
                 curblk.addInst(new RType(getAsmReg(it.rd), curblk,
                         getAsmReg(it.lhs), getAsmReg(it.rhs), transOpCode(it.opCode)));
             } else if(inst instanceof Icmp){
@@ -295,7 +299,7 @@ public class InstSelector {
                     }
                 } else {
                     Reg tmp = new VirtualReg(vregCounter++, 4);
-                    curblk.addInst(new RType(indexTmp, curblk, getAsmReg(it.stepNum),
+                    curblk.addInst(new RType(tmp, curblk, getAsmReg(it.stepNum),
                             getAsmReg(new ConstInt(it.stepType.width / 8, 32)), calType.mul));
                     curblk.addInst(new RType(indexTmp, curblk, getAsmReg(it.target), tmp, calType.add));
                 }
