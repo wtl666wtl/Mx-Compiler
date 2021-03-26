@@ -1,10 +1,14 @@
 package Frontend;
 
 import AST.*;
+import MIR.IRoperand.ConstBool;
+import MIR.IRoperand.ConstInt;
 import Util.scope.*;
 import Util.type.*;
 import Util.error.*;
 import Util.*;
+import MIR.*;
+import MIR.IRtype.*;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -19,10 +23,14 @@ public class SemanticChecker implements ASTVisitor {
     public boolean hasReturn = false;
     public boolean forClassMember = false;
 
+    public IRClassType nowIRClass = null;
+    public rootNode rt;
+
     public Stack<ASTNode> loops = new Stack<>();
 
-    public SemanticChecker(globalScope gScope) {
+    public SemanticChecker(globalScope gScope, rootNode rt) {
         nowScope = this.gScope = gScope;
+        this.rt = rt;
     }
 
     @Override public void visit(RootNode it) {
@@ -40,7 +48,9 @@ public class SemanticChecker implements ASTVisitor {
         classType newClass = (classType) gScope.getTypeFromName(it.name, it.pos);
         nowScope = newClass.localScope;
         nowClass = newClass;
+        nowIRClass = rt.newClassTypes.get(it.name);
         if (forClassMember) it.members.forEach(md -> md.accept(this));
+        nowIRClass = null;
         if (!forClassMember) {
             it.methods.forEach(md -> md.accept(this));
             it.constructors.forEach(cd -> cd.accept(this));
@@ -71,9 +81,22 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override public void visit(varDefNode it) {
         Type varType = gScope.makeType(it.typeName);
-        substance var = new substance(it.name, varType);
+
+        substance var = new substance(it.name, varType, nowScope == gScope);
         it.varSubstance = var;
+
         if(var.type.isVoid()) throw new semanticError("varDef error", it.pos);
+
+        //IR init
+        if(nowScope instanceof classScope){
+            var.inClass = true;
+            var.index = new ConstInt(nowClass.addMember(var.type), 32);
+        }
+        if(nowIRClass != null){
+            IRBaseType itType = rt.createIRType(it.varSubstance.type, true);
+            nowIRClass.members.add(itType);
+        }
+
         if (it.init != null) {
             it.init.accept(this);
             if (!it.init.type.isSame(varType)) throw new semanticError("varDef error", it.init.pos);
@@ -271,7 +294,7 @@ public class SemanticChecker implements ASTVisitor {
         if(!it.exprs.isEmpty())
             it.exprs.forEach(ed -> {
                 ed.accept(this);
-               if(!ed.type.isInt()) throw new semanticError("newExpr error ", it.pos);
+                if(!ed.type.isInt()) throw new semanticError("newExpr error ", it.pos);
             });
         it.type = gScope.makeType(it.newType);
     }

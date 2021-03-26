@@ -1,10 +1,12 @@
 package AST;
 
+import MIR.Block;
 import Util.position;
 
 public class whileStmtNode extends StmtNode {
     public ExprNode condition;
     public StmtNode body;
+    public Block terminalblk = null, condblk = null;
 
     public whileStmtNode(ExprNode condition, StmtNode body, position pos) {
         super(pos);

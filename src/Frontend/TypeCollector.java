@@ -38,7 +38,7 @@ public class TypeCollector implements ASTVisitor {
     }
 
     @Override public void visit(varDefNode it) {
-        substance var = new substance(it.name, gScope.makeType(it.typeName));
+        substance var = new substance(it.name, gScope.makeType(it.typeName), false);
         if (var.type.isVoid()) throw new semanticError("variable is void", it.pos);
         it.varSubstance = var;
         ((funScope)nowScope).addParameter(var, it.pos);

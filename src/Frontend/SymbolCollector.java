@@ -1,5 +1,7 @@
 package Frontend;
 
+import MIR.*;
+import MIR.IRtype.*;
 import AST.*;
 import Util.error.*;
 import Util.type.*;
@@ -9,11 +11,14 @@ import Util.*;
 import java.util.HashMap;
 
 public class SymbolCollector implements ASTVisitor {
+
     public globalScope gScope;
     public Scope nowScope = null;
+    public rootNode rt;
 
-    public SymbolCollector(globalScope gScope) {
+    public SymbolCollector(globalScope gScope, rootNode rt) {
         nowScope = this.gScope = gScope;
+        this.rt = rt;
     }
 
     @Override public void visit(RootNode it) {
@@ -23,7 +28,8 @@ public class SymbolCollector implements ASTVisitor {
     @Override public void visit(classDefNode it) {
         if (!(nowScope instanceof globalScope)) throw new internalError("class not define in globalScope", it.pos);
         classType newClass = new classType(it.name);
-        nowScope = new Scope(nowScope);
+        nowScope = new classScope(nowScope);
+        rt.newClassTypes.put(it.name, new IRClassType(it.name));
         it.members.forEach(md -> md.accept(this));
         it.methods.forEach(md -> md.accept(this));
         it.constructors.forEach(cd -> cd.accept(this));
