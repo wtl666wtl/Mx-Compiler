@@ -94,6 +94,7 @@ public class SemanticChecker implements ASTVisitor {
         }
         if(nowIRClass != null){
             IRBaseType itType = rt.createIRType(it.varSubstance.type, true);
+            if(itType instanceof IRClassType)itType = new IRPointerType(itType, false);
             nowIRClass.members.add(itType);
         }
 
@@ -287,6 +288,7 @@ public class SemanticChecker implements ASTVisitor {
         classType theClass = (classType) it.caller.type;
         if(!theClass.localScope.containsMember(it.member, false)) throw new semanticError("memberExpr error ", it.pos);
         it.memberSubstance = theClass.localScope.getMember(it.member, it.pos,false);
+        System.out.println(it.memberSubstance.type);
         it.type = it.memberSubstance.type;
     }
 

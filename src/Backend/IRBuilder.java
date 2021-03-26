@@ -202,6 +202,7 @@ public class IRBuilder implements ASTVisitor {
     @Override public void visit(RootNode it){
         it.defs.forEach(def -> {
             if(def instanceof classDefNode){
+                System.out.println("Yes");
                 String className = ((classDefNode)def).name;
                 ((classDefNode)def).methods.forEach(method -> {
                     String funcName = "ClassMethod_" + className + "_" + method.name;
@@ -224,6 +225,14 @@ public class IRBuilder implements ASTVisitor {
                 rt.funcs.put(func.name, func);
             }
         });
+        it.defs.forEach(def -> {
+            if(def instanceof classDefNode){
+                classDefNode itt = (classDefNode)def;
+                curClass = (classType)gScope.getTypeFromName(itt.name, itt.pos);
+                itt.members.forEach(mem -> mem.accept(this));
+                curClass = null;
+            }
+        });
         it.defs.forEach(def -> def.accept(this));
         rt.funcs.get("__init").outblk.addTerminator(new Ret(rt.funcs.get("__init").outblk, null));
 
@@ -231,8 +240,10 @@ public class IRBuilder implements ASTVisitor {
     }
 
     @Override public void visit(classDefNode it){
+        //System.out.println("Yes!");
         curClass = (classType)gScope.getTypeFromName(it.name, it.pos);
-        it.members.forEach(mem -> mem.accept(this));
+        //it.members.forEach(mem -> mem.accept(this));
+        //System.out.println(it.members.size());
         it.methods.forEach(met -> met.accept(this));
         it.constructors.forEach(con -> con.accept(this));
     }
@@ -312,6 +323,7 @@ public class IRBuilder implements ASTVisitor {
     }
 
     @Override public void visit(varDefNode it){
+        System.out.println(it);
         substance var = it.varSubstance;
         IRBaseType type = rt.createIRType(var.type, true);
         if(var.isGlobalVar){
@@ -327,6 +339,7 @@ public class IRBuilder implements ASTVisitor {
                 curFunc = null;
             }
         }else{
+            System.out.println("YES");
             if(isParameter){
                 Parameter p = new Parameter(type, "Parameter_" + var.name);
                 curFunc.funType.paramList.add(p);
@@ -340,6 +353,7 @@ public class IRBuilder implements ASTVisitor {
                         type = new IRPointerType(type, false);
                     var.operand = new Register("ClassMember_" + it.name + "_addr",
                             new IRPointerType(type, true));
+                    System.out.println(var.operand);
                 }else{
                     var.operand = new Register("TemporaryVar_" + it.name + "_addr",
                             new IRPointerType(type, true));
@@ -800,6 +814,7 @@ public class IRBuilder implements ASTVisitor {
     @Override public void visit(memberExprNode it){
         it.caller.accept(this);
         BaseOperand classPtr = getPointer(it.caller.operand, false);
+        System.out.println(it.memberSubstance);
         it.operand = new Register("member_" + it.member + "_Reg", it.memberSubstance.operand.type);
         curblk.addInst(new GetElementPtr((Register)it.operand, curblk,
                 ((IRPointerType)classPtr.type).pointTo, classPtr,
