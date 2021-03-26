@@ -27,7 +27,7 @@ public class IRBuilder implements ASTVisitor {
     public boolean isParameter = false;
     public int cnt = 0;
     public static ConstInt number_1 = new ConstInt(1, 32);
-    public static ConstInt number_0 = new ConstInt(1, 32);
+    public static ConstInt number_0 = new ConstInt(0, 32);
     public static ConstInt number_neg1 = new ConstInt(-1, 32);
     public static ConstBool bool_true = new ConstBool(true);
     public static ConstBool bool_false = new ConstBool(false);
