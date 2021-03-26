@@ -202,7 +202,7 @@ public class IRBuilder implements ASTVisitor {
     @Override public void visit(RootNode it){
         it.defs.forEach(def -> {
             if(def instanceof classDefNode){
-                System.out.println("Yes");
+                //System.out.println("Yes");
                 String className = ((classDefNode)def).name;
                 ((classDefNode)def).methods.forEach(method -> {
                     String funcName = "ClassMethod_" + className + "_" + method.name;
@@ -324,7 +324,7 @@ public class IRBuilder implements ASTVisitor {
     }
 
     @Override public void visit(varDefNode it){
-        System.out.println(it);
+        //System.out.println(it);
         substance var = it.varSubstance;
         IRBaseType type = rt.createIRType(var.type, true);
         if(var.isGlobalVar){
@@ -340,7 +340,7 @@ public class IRBuilder implements ASTVisitor {
                 curFunc = null;
             }
         }else{
-            System.out.println("YES");
+            //System.out.println("YES");
             if(isParameter){
                 Parameter p = new Parameter(type, "Parameter_" + var.name);
                 curFunc.funType.paramList.add(p);
@@ -354,7 +354,7 @@ public class IRBuilder implements ASTVisitor {
                         type = new IRPointerType(type, false);
                     var.operand = new Register("ClassMember_" + it.name + "_addr",
                             new IRPointerType(type, true));
-                    System.out.println(var.operand);
+                    //System.out.println(var.operand);
                 }else{
                     var.operand = new Register("TemporaryVar_" + it.name + "_addr",
                             new IRPointerType(type, true));
@@ -442,10 +442,10 @@ public class IRBuilder implements ASTVisitor {
 
         curblk = bodyblk;
         if(curFunc != null)curFunc.funcBlocks.add(curblk);
-        System.out.println("` " + curFunc.name);
-        System.out.println("` " + curblk.name);
+        //System.out.println("` " + curFunc.name);
+        //System.out.println("` " + curblk.name);
         it.body.accept(this);
-        System.out.println(curblk.isTerminated);
+        //System.out.println(curblk.isTerminated);
         if(!curblk.isTerminated) {
             if(it.condition != null)curblk.addTerminator(new Br(curblk, null, incrblk, null));
             else{
@@ -461,12 +461,12 @@ public class IRBuilder implements ASTVisitor {
         }
         curblk = incrblk;
         if(curFunc != null)curFunc.funcBlocks.add(curblk);
-        System.out.println("~" + curFunc.name);
-        System.out.println("~" + curblk.name);
+        //System.out.println("~" + curFunc.name);
+        //System.out.println("~" + curblk.name);
 
         if(it.incr != null)it.incr.accept(this);
-        System.out.println("~" + curFunc.name);
-        System.out.println("~" + curblk.name);
+        //System.out.println("~" + curFunc.name);
+        //System.out.println("~" + curblk.name);
         if(!curblk.isTerminated) curblk.addTerminator(new Br(curblk, null, condblk, null));
 
         curblk = terminalblk;
@@ -834,7 +834,7 @@ public class IRBuilder implements ASTVisitor {
     @Override public void visit(memberExprNode it){
         it.caller.accept(this);
         BaseOperand classPtr = getPointer(it.caller.operand, false);
-        System.out.println(it.memberSubstance);
+        //System.out.println(it.memberSubstance);
         it.operand = new Register("member_" + it.member + "_Reg", it.memberSubstance.operand.type);
         curblk.addInst(new GetElementPtr((Register)it.operand, curblk,
                 ((IRPointerType)classPtr.type).pointTo, classPtr,

@@ -339,8 +339,8 @@ public class InstSelector {
         //build AsmBlock's suc/pre
         blk.sucblks.forEach(sucblk -> {
             curblk.sucblks.add(blkMap.get(sucblk));
-            System.out.println(sucblk.name);
-            System.out.println(blkMap.get(sucblk));
+            //System.out.println(sucblk.name);
+            //System.out.println(blkMap.get(sucblk));
             blkMap.get(sucblk).preblks.add(curblk);
         });
     }
