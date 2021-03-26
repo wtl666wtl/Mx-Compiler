@@ -238,7 +238,7 @@ public class InstSelector {
                         curblk.addInst(new RType(getAsmReg(it.rd), curblk, tmp, tmp2, calType.or));
                     else{
                         VirtualReg tmp3 = new VirtualReg(vregCounter++, 4);
-                        curblk.addInst(new RType(tmp3, curblk, tmp, tmp2, calType.and));
+                        curblk.addInst(new RType(tmp3, curblk, tmp, tmp2, calType.or));
                         curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp3, new Imm(1), calType.xor));
                     }
                 }
