@@ -19,7 +19,18 @@ import java.io.PrintStream;
 public class Main {
     public static void main(String[] args) throws Exception{
 
-        ///String name = "C:\\Users\\23510\\Downloads\\Compiler-2021-testcases\\codegen\\e1.mx";
+        boolean CodeGen = true;
+        if (args.length > 0) {
+            for (String arg : args) {
+                switch (arg) {
+                    case "-semantic": CodeGen = false;break;
+                    default: break;
+                }
+            }
+        }
+
+        //String name = "C:\\Users\\23510\\Downloads\\Compiler-2021-testcases\\codegen\\t68.mx";
+        //String name = "C:\\Users\\23510\\Downloads\\Compiler-2021-testcases\\sema\\basic-package\\basic-64.mx";
         //InputStream input = new FileInputStream(name);
 
         InputStream input = System.in;
@@ -43,16 +54,18 @@ public class Main {
             new TypeCollector(gScope).visit(ASTRoot);
             new SemanticChecker(gScope, rt).visit(ASTRoot);
 
-            new IRBuilder(gScope, rt).visit(ASTRoot);
-            new Mem2Reg(rt).work();
-            new SolvePhi(rt).run();
+            if(CodeGen) {
+                new IRBuilder(gScope, rt).visit(ASTRoot);
+                new Mem2Reg(rt).work();
+                new SolvePhi(rt).run();
 
-            AsmRootNode AsmRt = new AsmRootNode();
-            new InstSelector(AsmRt).visitRt(rt);
-            new RegAlloc(AsmRt).work();
+                AsmRootNode AsmRt = new AsmRootNode();
+                new InstSelector(AsmRt).visitRt(rt);
+                new RegAlloc(AsmRt).work();
 
-            PrintStream pst = new PrintStream("output.s");
-            new AsmPrinter(AsmRt, pst).print();
+                PrintStream pst = new PrintStream("output.s");
+                new AsmPrinter(AsmRt, pst).print();
+            }
         } catch (error er) {
             System.err.println(er.toString());
             throw new RuntimeException();
