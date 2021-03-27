@@ -77,10 +77,15 @@ public class InstSelector {
             return regMap.get(it);
         } else if(it instanceof ConstString){
             if(!regMap.containsKey(it)){
+                /*System.out.println(((ConstString) it).name);
+                System.out.println(((ConstString) it).);
+                System.out.println(regMap.containsKey(it));
+                System.out.println(it);*/
                 int pointToWidth = it.type.width / 8;
                 String name = "." + ((ConstString)it).name;
                 GlobalReg reg = new GlobalReg(name, pointToWidth);
                 regMap.put(it, reg);
+                //System.out.println(regMap.containsKey(it));
                 AsmRt.constStrings.put(reg, ((ConstString)it).val);
                 return reg;
             }

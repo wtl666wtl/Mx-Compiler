@@ -898,7 +898,10 @@ public class IRBuilder implements ASTVisitor {
         String realString = getRealString(it.value.substring(1, it.value.length() - 1));
         ConstString string = null;
         String name;
-        if(rt.constStringMap.containsKey(realString))string = rt.constStringMap.get(realString);
+        if(rt.constStringMap.containsKey(realString)){
+            string = rt.constStringMap.get(realString);
+            //System.out.println(string);
+        }
         if(string == null){
             name = "constString_" + curFunc.name + cnt++;//maybe ok
             string = rt.addConstString(name, realString);
