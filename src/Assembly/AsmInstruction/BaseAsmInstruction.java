@@ -3,6 +3,8 @@ package Assembly.AsmInstruction;
 import Assembly.AsmBlock;
 import Assembly.AsmOperand.Reg;
 
+import java.util.ArrayList;
+
 public abstract class BaseAsmInstruction {
 
     public enum calType {
@@ -16,6 +18,8 @@ public abstract class BaseAsmInstruction {
     public AsmBlock blk;
     public BaseAsmInstruction preAdd1 = null, preAdd2 = null;
     public BaseAsmInstruction sucAdd1 = null;
+    public boolean disableForImm = false;
+    public ArrayList<BaseAsmInstruction> instForImm = new ArrayList<>();
 
     public BaseAsmInstruction(Reg rd, AsmBlock blk){
         this.rd = rd;
