@@ -33,8 +33,8 @@ public class RegAlloc {
             for (BaseAsmInstruction inst : blk.stmts) {
                 inst.resolveSLImm(stackLength);
                 if(inst instanceof IType){
-                    //if(((IType) inst).imm.val >= (1<<11) || ((IType) inst).imm.val < -(1<<11))
-                    //    dealITypeImm((IType) inst);
+                    if(((IType) inst).imm.val >= (1<<11) || ((IType) inst).imm.val < -(1<<11))
+                           dealITypeImm((IType) inst);
                 }
             }
         });
@@ -127,7 +127,7 @@ public class RegAlloc {
                     it.rd = t2;
                     //i++;
                 }
-                //if(it.imm.val >= (1<<12))dealITypeImm(it);
+                if(it.imm.val >= (1<<11))dealITypeImm(it);
             }else if(inst instanceof Ld){
                 Ld it = (Ld) inst;
                 if(it.addr instanceof VirtualReg){
@@ -140,7 +140,7 @@ public class RegAlloc {
                     it.rd = t2;
                     //i++;
                 }
-                //if(it.offset.val >= (1<<12))dealLdImm(it);
+                if(it.offset.val >= (1<<11))dealLdImm(it);
             }else if(inst instanceof St){
                 St it = (St) inst;
                 if(it.addr instanceof VirtualReg){
@@ -153,7 +153,7 @@ public class RegAlloc {
                     it.val = t1;
                     //i++;
                 }
-                //if(it.offset.val >= (1<<12))dealStImm(it);
+                if(it.offset.val >= (1<<11))dealStImm(it);
             }
         }
     }
@@ -161,15 +161,23 @@ public class RegAlloc {
     public void dealITypeImm(IType it){
         it.disableForImm = true;
         if(it.imm.val > 0){
-            int hi = (it.imm.val >> 12), lo = it.imm.val - (hi << 12);
+            int hi = (it.imm.val >> 12), lo = (it.imm.val - (hi << 12)) >> 1;
             it.instForImm.add(new lui(t3, it.blk, new Imm(hi)) );
-            it.instForImm.add(new IType(t3, it.blk, t3, new Imm(lo), BaseAsmInstruction.calType.add) );
+            it.instForImm.add(new Li(t5, it.blk, new Imm(lo)) );
+            it.instForImm.add(new IType(t5, it.blk, t5, new Imm(1), BaseAsmInstruction.calType.sll) );
+            if((it.imm.val & 1) == 1)
+                it.instForImm.add(new IType(t3, it.blk, t3, new Imm(1), BaseAsmInstruction.calType.add) );
+            it.instForImm.add(new RType(t3, it.blk, t3, t5, BaseAsmInstruction.calType.add) );
             it.instForImm.add(new RType(it.rd, it.blk, it.rs, t3, it.opCode));
         }else{
             it.imm.val = -it.imm.val;
-            int hi = (it.imm.val >> 12), lo = it.imm.val - (hi << 12);
+            int hi = (it.imm.val >> 12), lo = (it.imm.val - (hi << 12)) >> 1;
             it.instForImm.add(new lui(t3, it.blk, new Imm(hi)) );
-            it.instForImm.add(new IType(t3, it.blk, t3, new Imm(lo), BaseAsmInstruction.calType.add) );
+            it.instForImm.add(new Li(t5, it.blk, new Imm(lo)) );
+            it.instForImm.add(new IType(t5, it.blk, t5, new Imm(1), BaseAsmInstruction.calType.sll) );
+            if((it.imm.val & 1) == 1)
+                it.instForImm.add(new IType(t3, it.blk, t3, new Imm(1), BaseAsmInstruction.calType.add) );
+            it.instForImm.add(new RType(t3, it.blk, t3, t5, BaseAsmInstruction.calType.add) );
             it.instForImm.add(new RType(t3, it.blk, zero, t3, BaseAsmInstruction.calType.sub));
             it.instForImm.add(new RType(it.rd, it.blk, it.rs, t3, it.opCode));
         }
@@ -177,18 +185,26 @@ public class RegAlloc {
 
     public void dealLdImm(Ld it){
         it.disableForImm = true;
-        int hi = (it.offset.val >> 12), lo = it.offset.val - (hi << 12);
+        int hi = (it.offset.val >> 12), lo = (it.offset.val - (hi << 12)) >> 1;
         it.instForImm.add(new lui(t3, it.blk, new Imm(hi)) );
-        it.instForImm.add(new IType(t3, it.blk, t3, new Imm(lo), BaseAsmInstruction.calType.add) );
+        it.instForImm.add(new Li(t5, it.blk, new Imm(lo)) );
+        it.instForImm.add(new IType(t5, it.blk, t5, new Imm(1), BaseAsmInstruction.calType.sll) );
+        if((it.offset.val & 1) == 1)
+            it.instForImm.add(new IType(t3, it.blk, t3, new Imm(1), BaseAsmInstruction.calType.add) );
+        it.instForImm.add(new RType(t3, it.blk, t3, t5, BaseAsmInstruction.calType.add) );
         it.instForImm.add(new RType(t4, it.blk, t3, it.addr, BaseAsmInstruction.calType.add) );
         it.instForImm.add(new Ld(it.rd, it.blk, t4, new Imm(0), it.width));
     }
 
     public void dealStImm(St it){
         it.disableForImm = true;
-        int hi = (it.offset.val >> 12), lo = it.offset.val - (hi << 12);
+        int hi = (it.offset.val >> 12), lo = (it.offset.val - (hi << 12)) >> 1;
         it.instForImm.add(new lui(t3, it.blk, new Imm(hi)) );
-        it.instForImm.add(new IType(t3, it.blk, t3, new Imm(lo), BaseAsmInstruction.calType.add) );
+        it.instForImm.add(new Li(t5, it.blk, new Imm(lo)) );
+        it.instForImm.add(new IType(t5, it.blk, t5, new Imm(1), BaseAsmInstruction.calType.sll) );
+        if((it.offset.val & 1) == 1)
+            it.instForImm.add(new IType(t3, it.blk, t3, new Imm(1), BaseAsmInstruction.calType.add) );
+        it.instForImm.add(new RType(t3, it.blk, t3, t5, BaseAsmInstruction.calType.add) );
         it.instForImm.add(new RType(t4, it.blk, t3, it.addr, BaseAsmInstruction.calType.add) );
         it.instForImm.add(new St(it.blk, t4, it.val, new Imm(0), it.width));
     }
