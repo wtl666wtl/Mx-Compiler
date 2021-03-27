@@ -33,8 +33,8 @@ public class RegAlloc {
             for (BaseAsmInstruction inst : blk.stmts) {
                 inst.resolveSLImm(stackLength);
                 if(inst instanceof IType){
-                    if(((IType) inst).imm.val >= (1<<11) || ((IType) inst).imm.val < -(1<<11))
-                        dealITypeImm((IType) inst);
+                    //if(((IType) inst).imm.val >= (1<<11) || ((IType) inst).imm.val < -(1<<11))
+                    //    dealITypeImm((IType) inst);
                 }
             }
         });
@@ -127,7 +127,7 @@ public class RegAlloc {
                     it.rd = t2;
                     //i++;
                 }
-                if(it.imm.val >= (1<<12))dealITypeImm(it);
+                //if(it.imm.val >= (1<<12))dealITypeImm(it);
             }else if(inst instanceof Ld){
                 Ld it = (Ld) inst;
                 if(it.addr instanceof VirtualReg){
@@ -140,7 +140,7 @@ public class RegAlloc {
                     it.rd = t2;
                     //i++;
                 }
-                if(it.offset.val >= (1<<12))dealLdImm(it);
+                //if(it.offset.val >= (1<<12))dealLdImm(it);
             }else if(inst instanceof St){
                 St it = (St) inst;
                 if(it.addr instanceof VirtualReg){
@@ -153,7 +153,7 @@ public class RegAlloc {
                     it.val = t1;
                     //i++;
                 }
-                if(it.offset.val >= (1<<12))dealStImm(it);
+                //if(it.offset.val >= (1<<12))dealStImm(it);
             }
         }
     }
