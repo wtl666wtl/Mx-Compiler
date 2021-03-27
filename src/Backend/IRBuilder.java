@@ -449,13 +449,14 @@ public class IRBuilder implements ASTVisitor {
         it.body.accept(this);
         //System.out.println(curblk.isTerminated);
         if(!curblk.isTerminated) {
-            if(it.condition != null)curblk.addTerminator(new Br(curblk, null, incrblk, null));
-            else{
+            //if(it.condition != null)
+                curblk.addTerminator(new Br(curblk, null, incrblk, null));
+            /*else{
                 curblk.addTerminator(new Br(curblk, null, terminalblk, null));
                 curblk = terminalblk;
                 if(curFunc != null)curFunc.funcBlocks.add(curblk);
                 return;
-            }
+            }*/
         }
         else {
             curblk = terminalblk;
