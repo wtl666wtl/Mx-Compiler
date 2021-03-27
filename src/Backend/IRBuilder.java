@@ -618,11 +618,11 @@ public class IRBuilder implements ASTVisitor {
             if(it.lhs.type.isInt()) cop = IcmpOpType.sge;
             else stringFunc = rt.builtInFuncs.get("builtIn_string_GreaterEqual");
         } else if(it.opCode == opType.Equal) {
-            if(it.lhs.type.isInt()) cop = IcmpOpType.eq;
-            else stringFunc = rt.builtInFuncs.get("builtIn_string_Equal");
+            if(it.lhs.type.isSame(gScope.getStringType()))stringFunc = rt.builtInFuncs.get("builtIn_string_Equal");
+            else cop = IcmpOpType.eq;
         } else if(it.opCode == opType.NotEqual){
-            if(it.lhs.type.isInt()) cop = IcmpOpType.ne;
-            else stringFunc = rt.builtInFuncs.get("builtIn_string_NotEqual");
+            if(it.lhs.type.isSame(gScope.getStringType()))stringFunc = rt.builtInFuncs.get("builtIn_string_NotEqual");
+            else cop = IcmpOpType.ne;
         }
 
         BaseOperand lhs, rhs;
