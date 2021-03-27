@@ -87,7 +87,7 @@ public class Block {
             }
         }
         stmts.removeLast();
-        //may not need removeself?
+        //oldTerminator.deleteSelf(true);
     }
 
     public boolean returnTerminated(){
@@ -97,6 +97,23 @@ public class Block {
 
     public void addPhi(Phi phiInst){
         Phis.put(phiInst.rd, phiInst);
+    }
+
+    public void changeSucblk(Block origin, Block newblk){
+        Br inst = (Br) getTerminator();
+        if(inst.cond == null){
+            deleteTerminator();
+            addTerminator(new Br(this, null, newblk, null));
+        }else{
+            Br newTerminator;
+            if(inst.iftrue == origin){
+                newTerminator = new Br(this, inst.cond, newblk, inst.iffalse);
+            }else{
+                newTerminator = new Br(this, inst.cond, inst.iftrue, newblk);
+            }
+            deleteTerminator();
+            addTerminator(newTerminator);
+        }
     }
 
 }
