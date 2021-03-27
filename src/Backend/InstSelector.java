@@ -27,9 +27,14 @@ public class InstSelector {
     public HashMap<BaseOperand, Reg> regMap = new HashMap<>();
     public HashMap<Block, AsmBlock> blkMap = new HashMap<>();
     public HashMap<Function, AsmFunction> funcMap = new HashMap<>();
+    public PhyReg sp, t3, t4, t5;
 
     public InstSelector(AsmRootNode AsmRt){
         this.AsmRt = AsmRt;
+        sp = AsmRt.phyRegs.get(2);
+        t3 = AsmRt.phyRegs.get(28);
+        t4 = AsmRt.phyRegs.get(29);
+        t5 = AsmRt.phyRegs.get(30);
     }
 
     public calType transOpCode(Binary.binaryOpType it){
@@ -161,8 +166,8 @@ public class InstSelector {
         }
         int paramOffest = 0;
         for (int i = 8; i < curFunc.params.size(); i++) {
-            inblk.addInst(new Ld(curFunc.params.get(i), inblk, AsmRt.phyRegs.get(2),
-                    new StackLengthImm(paramOffest), func.funType.paramList.get(i).type.width / 8));
+            inblk.addInst(new Ld(curFunc.params.get(i), inblk, sp,
+                    new Imm(paramOffest), func.funType.paramList.get(i).type.width / 8));
             paramOffest = paramOffest + 4;
         }
 

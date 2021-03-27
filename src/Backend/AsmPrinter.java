@@ -51,10 +51,20 @@ public class AsmPrinter {
         hasVisited.add(blk);
         defaultOut.println(blk.name + ": ");
         for (BaseAsmInstruction i : blk.stmts) {
-            if(i.preAdd1 != null)defaultOut.println("\t" + i.preAdd1.toString());
-            if(i.preAdd2 != null)defaultOut.println("\t" + i.preAdd2.toString());
+            if(i.preAdd1 != null)printInst(i.preAdd1);//defaultOut.println("\t" + i.preAdd1.toString());
+            if(i.preAdd2 != null)printInst(i.preAdd2);//defaultOut.println("\t" + i.preAdd2.toString());
+            printInst(i);//defaultOut.println("\t" + i.toString());
+            if(i.sucAdd1 != null)printInst(i.sucAdd1);//defaultOut.println("\t" + i.sucAdd1.toString());
+        }
+    }
+
+    public void printInst(BaseAsmInstruction inst){
+        if(!inst.disableForImm){
+            defaultOut.println("\t" + inst.toString());
+            return;
+        }
+        for (BaseAsmInstruction i : inst.instForImm) {
             defaultOut.println("\t" + i.toString());
-            if(i.sucAdd1 != null)defaultOut.println("\t" + i.sucAdd1.toString());
         }
     }
 
