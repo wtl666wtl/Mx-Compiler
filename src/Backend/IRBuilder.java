@@ -825,6 +825,7 @@ public class IRBuilder implements ASTVisitor {
                 params.add(getPointer(it.callee.operand, false));//get this
             it.parameters.forEach(pd ->{
                 pd.accept(this);
+                //System.out.println(pd.operand);
                 params.add(getPointer(pd.operand, true));
             });
             //System.out.println(func.isMethod);

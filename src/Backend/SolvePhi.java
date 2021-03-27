@@ -36,14 +36,20 @@ public class SolvePhi {
             Block blk1 = blkPair.blk1, blk2 = blkPair.blk2;
             Block mid = new Block("midblk");
             func.funcBlocks.add(mid);
+            //System.out.println("@" + blk1.name);
+            //System.out.println(blk1.sucblks.size());
+            //System.out.println("@" + blk2.name);
             mid.addTerminator(new Br(mid, null, blk2, null));
 
             blk2.Phis.forEach((reg, phi) -> {
                 for(int i = 0;i < phi.myInfo.blks.size(); i++){
-                    if(phi.myInfo.blks.get(i) == blk1)
+                    if(phi.myInfo.blks.get(i) == blk1) {
+                        //System.out.println(i);
                         phi.myInfo.blks.set(i, mid);
+                    }
                 }
             });
+            blk1.changeSucblk(blk2, mid);
         });
 
         HashMap<Block, phiToMove> blkPhis = new HashMap<>();

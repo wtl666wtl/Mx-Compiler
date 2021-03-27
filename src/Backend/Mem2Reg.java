@@ -57,9 +57,11 @@ public class Mem2Reg {
                         if(allocStMap.get(inst.blk).containsKey(addr)){
                             substitutes.put(inst.rd, allocStMap.get(inst.blk).get(addr));
                             p.remove();
+                            //inst.deleteFlag = true;
                             inst.deleteSelf(true);
                         }else{
                             //((Load)inst).p = p;
+                            //System.out.println(inst.blk.name);
                             allocLdMap.get(inst.blk).add((Load) inst);
                         }
                     }
@@ -72,6 +74,7 @@ public class Mem2Reg {
                         defblk.add(inst.blk);
                         allocStMap.get(inst.blk).put((Register) addr, ((Store) inst).storeVal);
                         p.remove();
+                        //inst.deleteFlag = true;
                         inst.deleteSelf(true);
                     }
                 }
@@ -118,8 +121,8 @@ public class Mem2Reg {
             if(!allocPhiMap.get(blk).isEmpty()){
                 allocPhiMap.get(blk).forEach((addr, phi) -> blk.preblks.forEach(preblk -> {
                     Block nowblk = preblk;
-                    while (!allocStMap.get(preblk).containsKey(addr)) preblk = preblk.iDom;
-                    phi.addOrigin(allocStMap.get(preblk).get(addr), preblk);
+                    while (!allocStMap.get(nowblk).containsKey(addr)) nowblk = nowblk.iDom;
+                    phi.addOrigin(allocStMap.get(nowblk).get(addr), preblk);
                 }));
             }
             if(!allocLdMap.get(blk).isEmpty()){
@@ -130,14 +133,16 @@ public class Mem2Reg {
                     Register reg = ld.rd;
                     Register addr = (Register)ld.addr;
                     BaseOperand replace;
+                    //System.out.println(blk.name);
                     if(allocPhiMap.get(blk).containsKey(addr))
                         replace = allocPhiMap.get(blk).get(addr).rd;
                     else{
                         Block curblk = blk.iDom;
+                        //System.out.println(addr.name);
                         while(true){
                             //System.out.println(blk.name);
-                            //System.out.println(blk.iDom);
-                            //if(allocStMap.containsKey(curblk))
+                            //System.out.println(curblk.name);
+                            if(allocStMap.containsKey(curblk))
                                 if(allocStMap.get(curblk).containsKey(addr)){
                                 replace = allocStMap.get(curblk).get(addr);
                                 break;
