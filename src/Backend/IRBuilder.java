@@ -25,7 +25,7 @@ public class IRBuilder implements ASTVisitor {
     public Function curFunc = null;
     public classType curClass = null;
     public boolean isParameter = false;
-    public int cnt = 0;
+    public int cnt = 0, ifcnt = 0;
     public static ConstInt number_1 = new ConstInt(1, 32);
     public static ConstInt number_0 = new ConstInt(0, 32);
     public static ConstInt number_neg1 = new ConstInt(-1, 32);
@@ -249,6 +249,7 @@ public class IRBuilder implements ASTVisitor {
     }
 
     @Override public void visit(funDefNode it){
+        ifcnt = 0;
         returnList.clear();
         funType func = it.decl;
         curFunc = func.IRFunc;
@@ -381,9 +382,10 @@ public class IRBuilder implements ASTVisitor {
     @Override public void visit(exprListNode it){}
 
     @Override public void visit(ifStmtNode it) {
-        Block trueblk = new Block("if_true");
-        Block falseblk = new Block("if_false");
-        Block terminalblk = new Block("if_terminal");
+        ifcnt++;
+        Block trueblk = new Block("if_true" + ifcnt);
+        Block falseblk = new Block("if_false" + ifcnt);
+        Block terminalblk = new Block("if_terminal" + ifcnt);
 
         if (it.elseStmt == null) falseblk = terminalblk;
         it.condition.trueblk = trueblk;
@@ -472,8 +474,12 @@ public class IRBuilder implements ASTVisitor {
         //System.out.println("~" + curblk.name);
         if(!curblk.isTerminated) curblk.addTerminator(new Br(curblk, null, condblk, null));
 
-        curblk = terminalblk;
-        if(curFunc != null)curFunc.funcBlocks.add(curblk);
+        //curblk = terminalblk;
+        //if(curFunc != null)curFunc.funcBlocks.add(curblk);
+        if(!terminalblk.preblks.isEmpty()){
+            curblk = terminalblk;
+            if(curFunc != null)curFunc.funcBlocks.add(curblk);
+        }
     }
 
     @Override public void visit(whileStmtNode it) {
