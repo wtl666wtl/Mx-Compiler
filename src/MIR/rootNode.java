@@ -153,9 +153,10 @@ public class rootNode {
 
     public ConstString addConstString(String name, String realString){
         if(!constStrings.containsKey(name)){
-            constStrings.put(name, new ConstString(name, realString));
-            constStringMap.put(realString, new ConstString(name, realString));
-            return new ConstString(name, realString);
+            ConstString tmp = new ConstString(name, realString);
+            constStrings.put(name, tmp);
+            constStringMap.put(realString, tmp);
+            return tmp;
         } return constStrings.get(name);
     }
 
