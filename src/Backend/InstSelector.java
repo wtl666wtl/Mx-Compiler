@@ -167,7 +167,8 @@ public class InstSelector {
         int paramOffest = 0;
         for (int i = 8; i < curFunc.params.size(); i++) {
             inblk.addInst(new Ld(curFunc.params.get(i), inblk, sp,
-                    new Imm(paramOffest), func.funType.paramList.get(i).type.width / 8));
+                    new StackLengthImm(paramOffest), func.funType.paramList.get(i).type.width / 8));
+            //?
             paramOffest = paramOffest + 4;
         }
 

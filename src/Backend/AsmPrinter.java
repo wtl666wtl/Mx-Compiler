@@ -53,6 +53,16 @@ public class AsmPrinter {
         for (BaseAsmInstruction i : blk.stmts) {
             if(i.preAdd1 != null)printInst(i.preAdd1);//defaultOut.println("\t" + i.preAdd1.toString());
             if(i.preAdd2 != null)printInst(i.preAdd2);//defaultOut.println("\t" + i.preAdd2.toString());
+            if(i.preAdds.size() > 0){
+                for (BaseAsmInstruction j : i.preAdds) {
+                    printInst(j);
+                }
+            }
+            if(i.instForCal.size() > 0){
+                for (BaseAsmInstruction j : i.instForCal) {
+                    printInst(j);
+                }
+            }
             printInst(i);//defaultOut.println("\t" + i.toString());
             if(i.sucAdd1 != null)printInst(i.sucAdd1);//defaultOut.println("\t" + i.sucAdd1.toString());
         }
