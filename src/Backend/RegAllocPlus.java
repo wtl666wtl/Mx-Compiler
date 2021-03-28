@@ -80,7 +80,7 @@ public class RegAllocPlus {
         }
         SmartTag x = freeList.getFirst();
         freeList.removeFirst();
-        if(x.dirty)it.preAdds.add(StVReg(curblk, x.phyReg, x.vreg));
+        if(x.dirty && x.vreg.usedTag)it.preAdds.add(StVReg(curblk, x.phyReg, x.vreg));
         x.dirty = false;
         if(loadFlag)it.preAdds.add(LdVReg(curblk, vreg, x.phyReg));
         else x.dirty = true;
@@ -111,7 +111,7 @@ public class RegAllocPlus {
                 //i++;
                 for (int i = 0; i < tot; i++) {
                     SmartTag x = freeList.get(i);
-                    if (x.vreg != null && x.dirty && it.rs != x.phyReg) {
+                    if (x.vreg != null && x.dirty && it.rs != x.phyReg && x.vreg.usedTag) {
                         //System.out.println(x.phyReg);
                         inst.instForCal.add(StVReg(curblk, x.phyReg, x.vreg));
                     }
@@ -212,7 +212,7 @@ public class RegAllocPlus {
                 for (int i = 0; i < tot; i++) {
                     SmartTag x = freeList.get(i);
 
-                    if (x.vreg != null && x.dirty) {//System.out.println(x.phyReg);
+                    if (x.vreg != null && x.dirty && x.vreg.usedTag) {//System.out.println(x.phyReg);
                         //System.out.println(x.phyReg);
                         inst.instForCal.add(StVReg(curblk, x.phyReg, x.vreg));
                     }
