@@ -62,6 +62,8 @@ public class Main {
                 new Optimization(rt).work();
                 
                 new SolvePhi(rt).run();
+                
+                AsmRootNode AsmRt = new AsmRootNode();
 
                 //new InstSelector(AsmRt).visitRt(rt);
                 //new InstSelectorPlus(AsmRt).visitRt(rt);
