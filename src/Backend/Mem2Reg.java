@@ -58,7 +58,7 @@ public class Mem2Reg {
                             substitutes.put(inst.rd, allocStMap.get(inst.blk).get(addr));
                             p.remove();
                             //inst.deleteFlag = true;
-                            inst.deleteSelf(true);
+                            inst.deleteSelf(false);
                         }else{
                             //((Load)inst).p = p;
                             //System.out.println(inst.blk.name);
@@ -75,7 +75,7 @@ public class Mem2Reg {
                         allocStMap.get(inst.blk).put((Register) addr, ((Store) inst).storeVal);
                         p.remove();
                         //inst.deleteFlag = true;
-                        inst.deleteSelf(true);
+                        inst.deleteSelf(false);
                     }
                 }
             }
@@ -151,7 +151,7 @@ public class Mem2Reg {
                     }
                     substitutes.put(reg, getReplace(replace));
                     ld.deleteFlag = true;
-                    ld.deleteSelf(true);
+                    ld.deleteSelf(false);
                 });
             }
         });

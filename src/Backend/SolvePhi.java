@@ -63,22 +63,29 @@ public class SolvePhi {
         }));
         blkPhis.forEach(this::solveBlkPhi);
 
-        //This is for optimal
+        //compress jump-only blks
 
-        /*HashSet<Block> canMix = new HashSet<>();
+        HashSet<Block> jmpOnlySet = new HashSet<>();
         func.funcBlocks.forEach(blk -> {
-            BaseInstruction headInst = blk.getHead();
-            if(headInst instanceof Br && ((Br)headInst).cond == null)canMix.add(blk);//jmp
+            BaseInstruction it = blk.getHead();
+            if(it instanceof Br && ((Br)it).cond == null)
+                jmpOnlySet.add(blk);
         });
 
-        canMix.forEach(blk -> {
-            Block suc = blk;
-            do {
-                suc = ((Br) suc.getTerminator()).iftrue;
-            } while (canMix.contains(suc));
+        jmpOnlySet.forEach(blk -> {
+            Block sucblk = blk;
+            while (jmpOnlySet.contains(sucblk)) {
+                sucblk = ((Br) sucblk.getTerminator()).iftrue;
+            }
+            //System.out.println(blk.preblks.size());
+            HashSet<Block> preblks = new HashSet<>(blk.preblks);
+            for (Block preblk : preblks) {
+                preblk.changeSucblk(blk, sucblk);
+            }
+            if(blk == func.inblk)
+                func.inblk = sucblk;
         });
-
-        func.funcBlocks.removeAll(canMix);*/
+        func.funcBlocks.removeAll(jmpOnlySet);
     }
 
     public void solveBlkPhi(Block blk, phiToMove para){

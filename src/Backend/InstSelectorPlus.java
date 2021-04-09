@@ -111,6 +111,7 @@ public class InstSelectorPlus {
             if(val == 0)return AsmRt.phyRegs.get(0);
             if(ImmMap.containsKey(val)) return ImmMap.get(val);
             VirtualReg reg = new VirtualReg(vregCounter++, 4);
+            reg.usedTag = true;
             curblk.addInst(new Li(reg, curblk, new Imm(val)));
             ImmMap.put(val, reg);
             return reg;
@@ -119,6 +120,7 @@ public class InstSelectorPlus {
             if(!val)return AsmRt.phyRegs.get(0);
             if(ImmMap.containsKey(1)) return ImmMap.get(1);
             VirtualReg reg = new VirtualReg(vregCounter++, 4);
+            reg.usedTag = true;
             curblk.addInst(new Li(reg, curblk, new Imm(1)));
             ImmMap.put(1, reg);
             return reg;
@@ -406,6 +408,7 @@ public class InstSelectorPlus {
         //build AsmBlock's suc/pre
         blk.sucblks.forEach(sucblk -> {
             curblk.sucblks.add(blkMap.get(sucblk));
+            //System.out.println(blk.name);
             //System.out.println(sucblk.name);
             //System.out.println(blkMap.get(sucblk));
             blkMap.get(sucblk).preblks.add(curblk);
