@@ -6,6 +6,7 @@ public class VirtualReg extends Reg{
 
     public int index, width;
     public boolean usedTag = true;
+    public boolean nextTag = false;
 
     public VirtualReg(int index, int width){
         super();
