@@ -57,6 +57,9 @@ public class Main {
             if(CodeGen) {
                 new IRBuilder(gScope, rt).visit(ASTRoot);
                 new Mem2Reg(rt).work();
+                
+                new Optimization(rt).work();
+                
                 new SolvePhi(rt).run();
 
                 AsmRootNode AsmRt = new AsmRootNode();
