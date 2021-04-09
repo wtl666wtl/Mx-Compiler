@@ -49,7 +49,7 @@ public class RegAllocPP {
             stackLength = 0;
             curFunc = func;
             workFunc(func);
-            stackLength += func.paramStSize + func.vregCounter * 4;
+            stackLength += func.paramStSize + func.vregCounter * 4;//todo:true vreg
             if(stackLength % 16 != 0)stackLength = (stackLength / 16 + 1) * 16;
             //stackLength = Integer.min(stackLength, 2032);
             resolveSLImm(func);
@@ -61,6 +61,9 @@ public class RegAllocPP {
     }
 
     public PhyReg SmartFind(BaseAsmInstruction it, VirtualReg vreg, boolean loadFlag, boolean moveFlag){
+        /*if(vreg.index == 24){
+            System.out.println(vreg.useTime);
+        }*/
         vreg.useTime--;
         for(int i = tot - 1; i > -1; i--) {
             SmartTag x = freeList.get(i);
@@ -213,8 +216,10 @@ public class RegAllocPP {
                 // System.out.println("------");
                 for (int i = 0; i < tot; i++) {
                     SmartTag x = freeList.get(i);
-
-                    if (x.vreg != null && x.dirty && (x.vreg.useTime > 0 || inst instanceof Jp && x.vreg.appearBlks.size() > 1)) {//System.out.println(x.phyReg);
+                    /*if(x != null && x.vreg != null){
+                    System.out.println(x.vreg.index);
+                    System.out.println(x.vreg.useTime);}*/
+                    if (x.vreg != null && x.dirty && (x.vreg.useTime > 0 || x.vreg.appearBlks.size() > 1)) {//System.out.println(x.phyReg);
                         //System.out.println(x.phyReg);
                         inst.instForCal.add(StVReg(curblk, x.phyReg, x.vreg));
                     }

@@ -23,12 +23,11 @@ public class InstSelectorPP {
     public AsmBlock curblk;
     public AsmFunction curFunc;
     public int vregCounter = 0;
-    public HashMap<Integer, Reg> ImmMap = new HashMap<>();
+    public HashMap<Integer, VirtualReg> ImmMap = new HashMap<>();
     public HashMap<BaseOperand, Reg> regMap = new HashMap<>();
     public HashMap<Block, AsmBlock> blkMap = new HashMap<>();
     public HashMap<Function, AsmFunction> funcMap = new HashMap<>();
     public PhyReg sp, t3, t4, t5;
-    public HashMap<VirtualReg, AsmBlock>vregMap = new HashMap<>();
 
     public InstSelectorPP(AsmRootNode AsmRt){
         this.AsmRt = AsmRt;
@@ -75,14 +74,14 @@ public class InstSelectorPP {
     }
 
     Reg getAsmReg(BaseOperand it){
-        if(regMap.containsKey(it)){
-            Reg t = regMap.get(it);
-            if(t instanceof VirtualReg){
-                ((VirtualReg) t).useTime++;
-                ((VirtualReg) t).appearBlks.add(curblk);
-            }
-        }
         if(it instanceof Register || it instanceof Parameter){
+            if(regMap.containsKey(it)){
+                Reg t = regMap.get(it);
+                if(t instanceof VirtualReg){
+                    ((VirtualReg) t).useTime++;
+                    ((VirtualReg) t).appearBlks.add(curblk);
+                }
+            }
             if(!regMap.containsKey(it)) {
                 VirtualReg tmp = new VirtualReg(vregCounter++, it.type.width / 8);
                 regMap.put(it, tmp);
@@ -102,10 +101,6 @@ public class InstSelectorPP {
             return regMap.get(it);
         } else if(it instanceof ConstString){
             if(!regMap.containsKey(it)){
-                /*System.out.println(((ConstString) it).name);
-                System.out.println(((ConstString) it).);
-                System.out.println(regMap.containsKey(it));
-                System.out.println(it);*/
                 int pointToWidth = it.type.width / 8;
                 String name = "." + ((ConstString)it).name;
                 GlobalReg reg = new GlobalReg(name, pointToWidth);
@@ -118,22 +113,30 @@ public class InstSelectorPP {
         } else if(it instanceof ConstInt){
             int val = ((ConstInt) it).val;
             if(val == 0)return AsmRt.phyRegs.get(0);
-            if(ImmMap.containsKey(val)) return ImmMap.get(val);
+            if(ImmMap.containsKey(val)){
+                VirtualReg x = ImmMap.get(val);
+                x.useTime++;
+                x.appearBlks.add(curblk);
+                return x;
+            }
             VirtualReg reg = new VirtualReg(vregCounter++, 4);
-            ((VirtualReg) reg).useTime++;
+            ((VirtualReg) reg).useTime+=2;
             ((VirtualReg) reg).appearBlks.add(curblk);
-            reg.usedTag = true;
             curblk.addInst(new Li(reg, curblk, new Imm(val)));
             ImmMap.put(val, reg);
             return reg;
         } else if(it instanceof ConstBool){
             boolean val = ((ConstBool) it).val;
             if(!val)return AsmRt.phyRegs.get(0);
-            if(ImmMap.containsKey(1)) return ImmMap.get(1);
+            if(ImmMap.containsKey(1)){
+                VirtualReg x = ImmMap.get(1);
+                x.useTime++;
+                x.appearBlks.add(curblk);
+                return x;
+            }
             VirtualReg reg = new VirtualReg(vregCounter++, 4);
-            ((VirtualReg) reg).useTime++;
+            ((VirtualReg) reg).useTime+=2;
             ((VirtualReg) reg).appearBlks.add(curblk);
-            reg.usedTag = true;
             curblk.addInst(new Li(reg, curblk, new Imm(1)));
             ImmMap.put(1, reg);
             return reg;
@@ -256,6 +259,7 @@ public class InstSelectorPP {
                 //System.out.print(it.rd.name + " ");
                 //System.out.print((it.lhs) + " ");
                 //System.out.println((it.rhs)); }
+                //System.out.println(it);
                 if(it.opCode == Binary.binaryOpType.mul || it.opCode == Binary.binaryOpType.sdiv
                     || it.opCode == Binary.binaryOpType.srem){
                         curblk.addInst(new RType(getAsmReg(it.rd), curblk,
@@ -302,15 +306,15 @@ public class InstSelectorPP {
                     tmp.appearBlks.add(curblk);
                     curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg1), getAsmReg(it.arg2), calType.slt));
                     VirtualReg tmp2 = new VirtualReg(vregCounter++, 4);
-                    tmp.useTime++;
-                    tmp.appearBlks.add(curblk);
+                    tmp2.useTime++;
+                    tmp2.appearBlks.add(curblk);
                     curblk.addInst(new RType(tmp2, curblk, getAsmReg(it.arg2), getAsmReg(it.arg1), calType.slt));
                     if(opCode == cmpType.ne)
                         curblk.addInst(new RType(getAsmReg(it.rd), curblk, tmp, tmp2, calType.or));
                     else{
                         VirtualReg tmp3 = new VirtualReg(vregCounter++, 4);
-                        tmp.useTime++;
-                        tmp.appearBlks.add(curblk);
+                        tmp3.useTime++;
+                        tmp3.appearBlks.add(curblk);
                         curblk.addInst(new RType(tmp3, curblk, tmp, tmp2, calType.or));
                         curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp3, new Imm(1), calType.xor));
                     }
@@ -359,7 +363,7 @@ public class InstSelectorPP {
             } else if(inst instanceof GetElementPtr){
                 GetElementPtr it = (GetElementPtr) inst;
                 VirtualReg indexTmp = new VirtualReg(vregCounter++, 4);
-                indexTmp.useTime++;
+                indexTmp.useTime=2;
                 indexTmp.appearBlks.add(curblk);
                 //indexTmp.usedTag = false;
                 //indexTmp = target + stepType * stepNum
@@ -368,21 +372,18 @@ public class InstSelectorPP {
                     if(stepNum.val == 0){
                         Reg target = getAsmReg(it.target);
                         if(target instanceof GlobalReg) {
-                            indexTmp.usedTag = true;
                             curblk.addInst(new La(indexTmp, curblk, (GlobalReg) target));
                         }
                         else {
-                            indexTmp.usedTag = false;
                             curblk.addInst(new Mv(indexTmp, curblk, target));
                         }
                     }else{
-                        indexTmp.usedTag = false;
                         curblk.addInst(new RType(indexTmp, curblk, getAsmReg(it.target),
                                 getAsmReg(new ConstInt(stepNum.val * it.stepType.width / 8, 32)), calType.add));
                     }
                 } else {
                     VirtualReg tmp = new VirtualReg(vregCounter++, 4);
-                    tmp.useTime++;
+                    tmp.useTime=2;
                     tmp.appearBlks.add(curblk);
                     tmp.usedTag = false;
                     curblk.addInst(new RType(tmp, curblk, getAsmReg(it.stepNum),
@@ -417,13 +418,10 @@ public class InstSelectorPP {
                         ((VirtualReg)tmp).useTime++;
                         ((VirtualReg)tmp).appearBlks.add(curblk);
                     }
+                    index.useTime++;
                     curblk.addInst(new Mv(tmp, curblk, index));
                 }
-                else{
-                    index.usedTag = true;
-                    regMap.put(it.rd, index);
-                    vregMap.put(index, curblk);
-                }
+                else regMap.put(it.rd, index);
             } else if(inst instanceof BitCast){
                 BitCast it = (BitCast) inst;
                 Reg reg = getAsmReg(it.origin);
