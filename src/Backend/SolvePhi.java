@@ -67,9 +67,12 @@ public class SolvePhi {
 
         HashSet<Block> jmpOnlySet = new HashSet<>();
         func.funcBlocks.forEach(blk -> {
-            BaseInstruction it = blk.getHead();
-            if(it instanceof Br && ((Br)it).cond == null)
-                jmpOnlySet.add(blk);
+            BaseInstruction it = blk.stmts.getFirst();
+            if(it instanceof Br && ((Br)it).cond == null){
+                //System.out.println(it);
+                if(blk != func.inblk || ((Br)it).iftrue.preblks.size() == 1)
+                    jmpOnlySet.add(blk);
+            }
         });
 
         jmpOnlySet.forEach(blk -> {
