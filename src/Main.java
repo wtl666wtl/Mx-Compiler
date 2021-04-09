@@ -5,6 +5,7 @@ import MIR.*;
 import Frontend.*;
 import Parser.*;
 import Util.MxErrorListener;
+import Optim.Optimization;
 import Util.error.error;
 import Util.scope.globalScope;
 import org.antlr.v4.runtime.CharStreams;
