@@ -2,6 +2,7 @@ package MIR.IRoperand;
 
 import MIR.IRinstruction.BaseInstruction;
 import MIR.IRtype.IRBaseType;
+import Util.substance;
 
 import java.util.HashSet;
 
@@ -32,6 +33,7 @@ public class Register extends BaseOperand{
 
     @Override
     public void appear(BaseInstruction inst){
+        //if(inst.rd != this)
         positions.add(inst);
     }
 

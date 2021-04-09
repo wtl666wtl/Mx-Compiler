@@ -1,5 +1,6 @@
 package MIR.IRinstruction;
 
+import Assembly.AsmOperand.Reg;
 import MIR.*;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
@@ -30,13 +31,20 @@ public class Phi extends BaseInstruction{
     public void addOrigin(BaseOperand val, Block origin){
         myInfo.vals.add(val);
         myInfo.blks.add(origin);
-        val.appear(this);
+        if(! (val instanceof Register))val.appear(this);
+        else{
+            //System.out.println(val);
+            //System.out.println(((Register) val).substance);
+            //System.out.println(rd.substance);
+            //if(((Register) val).substance != rd.substance || rd.substance == null)
+                val.appear(this);
+        }
     }
 
     @Override
     public String toString(){
         String s = rd.toString() + " = phi " + rd.type.toString() + " ";
-        for(int i = 0;i <= myInfo.blks.size();i++){
+        for(int i = 0;i < myInfo.blks.size();i++){
             if(i > 0)s = s + ", ";
             s = s + "[ " + myInfo.vals.get(i).toString() + ", %" + myInfo.blks.get(i).name + "]";
         }
