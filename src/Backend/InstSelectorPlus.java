@@ -71,7 +71,7 @@ public class InstSelectorPlus {
             Reg t = regMap.get(it);
             if(t instanceof VirtualReg && vregMap.containsKey(t)) {
                 AsmBlock tmp = vregMap.get(t);
-                if(tmp != curblk)((VirtualReg) t).usedTag = true;
+                if(tmp != curblk)((VirtualReg) t).nextTag = true;
             }
         }
         if(it instanceof Register || it instanceof Parameter){
@@ -171,7 +171,7 @@ public class InstSelectorPlus {
         });*/
         //ra
         VirtualReg vreg = new VirtualReg(vregCounter++, 4);
-        vreg.usedTag = true;
+        vreg.nextTag = true;
         inblk.addInst(new Mv(vreg, inblk, AsmRt.phyRegs.get(1)));
         //if(func.name == "__init")System.out.println(vregCounter);
         //get params
