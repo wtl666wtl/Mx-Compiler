@@ -7,11 +7,11 @@ import MIR.IRinstruction.Store;
 
 import java.util.*;
 
-public class RegAllocPP {
+public class RegAllocFake {
 
     public AsmRootNode AsmRt;
     int stackLength;
-    public PhyReg zero, sp, t3, t4, t5;
+    public PhyReg zero, sp, t3;
     public LinkedList<SmartTag> freeList = new LinkedList<>();
     public int tot = 0;
 
@@ -20,18 +20,16 @@ public class RegAllocPP {
     public int tvreg = 0;
     public HashMap<Integer, Integer> TVRegMap = new HashMap<>();
 
-    public RegAllocPP(AsmRootNode AsmRt){
+    public RegAllocFake(AsmRootNode AsmRt){
         this.AsmRt = AsmRt;
         zero = AsmRt.phyRegs.get(0);
         sp = AsmRt.phyRegs.get(2);
         for(int i = 3; i < 10; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
         for(int i = 18; i < 28; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
-        freeList.add(new SmartTag(AsmRt.phyRegs.get(31), null));
+        for(int i = 29; i < 32; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
         tot = freeList.size();
 
         t3 = AsmRt.phyRegs.get(28);
-        t4 = AsmRt.phyRegs.get(29);
-        t5 = AsmRt.phyRegs.get(30);
     }
 
     public void resolveSLImm(AsmFunction func){
@@ -105,7 +103,7 @@ public class RegAllocPP {
         //System.out.println(blk.name);
         for(int i = 3; i < 10; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
         for(int i = 18; i < 28; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
-        freeList.add(new SmartTag(AsmRt.phyRegs.get(31), null));
+        for(int i = 29; i < 32; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
         curblk = blk;
         //for(Iterator<BaseAsmInstruction> p = blk.stmts.iterator(); p.hasNext();){
         //for (int i = 0; i < blk.stmts.size(); i++) {
@@ -128,7 +126,7 @@ public class RegAllocPP {
                 freeList.clear();
                 for(int i = 3; i < 10; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
                 for(int i = 18; i < 28; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
-                freeList.add(new SmartTag(AsmRt.phyRegs.get(31), null));
+                for(int i = 29; i < 32; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
             }else if(inst instanceof La){
                 La it = (La)inst;
                 if(!(it.rd instanceof VirtualReg))continue;
@@ -231,60 +229,29 @@ public class RegAllocPP {
                 freeList.clear();
                 for(int i = 3; i < 10; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
                 for(int i = 18; i < 28; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
-                freeList.add(new SmartTag(AsmRt.phyRegs.get(31), null));
+                for(int i = 29; i < 32; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
             }
         }
     }
 
     public void dealITypeImm(IType it){
         it.disableForImm = true;
-        if(it.imm.val > 0){
-            int hi = (it.imm.val >> 12), lo = (it.imm.val - (hi << 12)) >> 1;
-            it.instForImm.add(new lui(t3, it.blk, new Imm(hi)) );
-            it.instForImm.add(new Li(t5, it.blk, new Imm(lo)) );
-            it.instForImm.add(new IType(t5, it.blk, t5, new Imm(1), BaseAsmInstruction.calType.sll) );
-            if((it.imm.val & 1) == 1)
-                it.instForImm.add(new IType(t3, it.blk, t3, new Imm(1), BaseAsmInstruction.calType.add) );
-            it.instForImm.add(new RType(t3, it.blk, t3, t5, BaseAsmInstruction.calType.add) );
+            it.instForImm.add(new Li(t3, it.blk, new Imm(it.imm.val)) );
             it.instForImm.add(new RType(it.rd, it.blk, it.rs, t3, it.opCode));
-        }else{
-            it.imm.val = -it.imm.val;
-            int hi = (it.imm.val >> 12), lo = (it.imm.val - (hi << 12)) >> 1;
-            it.instForImm.add(new lui(t3, it.blk, new Imm(hi)) );
-            it.instForImm.add(new Li(t5, it.blk, new Imm(lo)) );
-            it.instForImm.add(new IType(t5, it.blk, t5, new Imm(1), BaseAsmInstruction.calType.sll) );
-            if((it.imm.val & 1) == 1)
-                it.instForImm.add(new IType(t3, it.blk, t3, new Imm(1), BaseAsmInstruction.calType.add) );
-            it.instForImm.add(new RType(t3, it.blk, t3, t5, BaseAsmInstruction.calType.add) );
-            it.instForImm.add(new RType(t3, it.blk, zero, t3, BaseAsmInstruction.calType.sub));
-            it.instForImm.add(new RType(it.rd, it.blk, it.rs, t3, it.opCode));
-        }
     }
 
     public void dealLdImm(Ld it){
         it.disableForImm = true;
-        int hi = (it.offset.val >> 12), lo = (it.offset.val - (hi << 12)) >> 1;
-        it.instForImm.add(new lui(t3, it.blk, new Imm(hi)) );
-        it.instForImm.add(new Li(t5, it.blk, new Imm(lo)) );
-        it.instForImm.add(new IType(t5, it.blk, t5, new Imm(1), BaseAsmInstruction.calType.sll) );
-        if((it.offset.val & 1) == 1)
-            it.instForImm.add(new IType(t3, it.blk, t3, new Imm(1), BaseAsmInstruction.calType.add) );
-        it.instForImm.add(new RType(t3, it.blk, t3, t5, BaseAsmInstruction.calType.add) );
-        it.instForImm.add(new RType(t4, it.blk, t3, it.addr, BaseAsmInstruction.calType.add) );
-        it.instForImm.add(new Ld(it.rd, it.blk, t4, new Imm(0), it.width));
+        it.instForImm.add(new Li(t3, it.blk, new Imm(it.offset.val)) );
+        it.instForImm.add(new RType(t3, it.blk, t3, it.addr, BaseAsmInstruction.calType.add) );
+        it.instForImm.add(new Ld(it.rd, it.blk, t3, new Imm(0), it.width));
     }
 
     public void dealStImm(St it){
         it.disableForImm = true;
-        int hi = (it.offset.val >> 12), lo = (it.offset.val - (hi << 12)) >> 1;
-        it.instForImm.add(new lui(t3, it.blk, new Imm(hi)) );
-        it.instForImm.add(new Li(t5, it.blk, new Imm(lo)) );
-        it.instForImm.add(new IType(t5, it.blk, t5, new Imm(1), BaseAsmInstruction.calType.sll) );
-        if((it.offset.val & 1) == 1)
-            it.instForImm.add(new IType(t3, it.blk, t3, new Imm(1), BaseAsmInstruction.calType.add) );
-        it.instForImm.add(new RType(t3, it.blk, t3, t5, BaseAsmInstruction.calType.add) );
-        it.instForImm.add(new RType(t4, it.blk, t3, it.addr, BaseAsmInstruction.calType.add) );
-        it.instForImm.add(new St(it.blk, t4, it.val, new Imm(0), it.width));
+        it.instForImm.add(new Li(t3, it.blk, new Imm(it.offset.val)) );
+        it.instForImm.add(new RType(t3, it.blk, t3, it.addr, BaseAsmInstruction.calType.add) );
+        it.instForImm.add(new St(it.blk, t3, it.val, new Imm(0), it.width));
     }
 
     public BaseAsmInstruction LdVReg(AsmBlock blk, VirtualReg r, PhyReg rd){
