@@ -65,13 +65,9 @@ public class Main {
                 
                 AsmRootNode AsmRt = new AsmRootNode();
 
-                //new InstSelector(AsmRt).visitRt(rt);
-                //new InstSelectorPlus(AsmRt).visitRt(rt);
                 new InstSelectorPP(AsmRt).visitRt(rt);
 
-                //new RegAlloc(AsmRt).work();
-                //new RegAllocPlus(AsmRt).work();
-                new RegAllocPP(AsmRt).work();
+                new RegAllocFinal(AsmRt).work();
 
                 PrintStream pst = new PrintStream("output.s");
                 new AsmPrinter(AsmRt, pst).print();
