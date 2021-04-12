@@ -153,7 +153,7 @@ public class InstSelectorPP {
         rt.funcs.forEach((funcName, func) -> {
             //optimal? loop
             func.funcBlocks.forEach(blk -> {
-                AsmBlock Asmblk = new AsmBlock("." + funcName + "_" + blk.name);
+                AsmBlock Asmblk = new AsmBlock("." + funcName + "_" + blk.name, AsmRt);
                 blkMap.put(blk, Asmblk);
             });
             AsmFunction AsmFunc = new AsmFunction(funcName, blkMap.get(func.inblk), blkMap.get(func.outblk));
@@ -174,17 +174,17 @@ public class InstSelectorPP {
         vregCounter = 0;
         func.funType.paramList.forEach(parameter -> curFunc.params.add(getAsmReg(parameter)));
         AsmBlock inblk = curFunc.inblk, outblk = curFunc.outblk;
-        //ArrayList<VirtualReg> calleeMap = new ArrayList<>();
+        ArrayList<VirtualReg> calleeMap = new ArrayList<>();
         //sp
         StackLengthImm stackLength = new StackLengthImm(0);
         stackLength.order = -1;
         inblk.addInst(new IType(AsmRt.phyRegs.get(2), inblk, AsmRt.phyRegs.get(2), stackLength, calType.add));
         //if(func.name == "__init")System.out.println(vregCounter);
-        /*AsmRt.calleeRegs.forEach(reg -> {
+        AsmRt.calleeRegs.forEach(reg -> {
             VirtualReg vreg = new VirtualReg(vregCounter++, 4);
             calleeMap.add(vreg);
             inblk.addInst(new Mv(vreg, inblk, reg));
-        });*/
+        });
         //ra
         VirtualReg vreg = new VirtualReg(vregCounter++, 4);
         ((VirtualReg) vreg).useTime++;
@@ -208,9 +208,9 @@ public class InstSelectorPP {
             curFunc.blks.add(blkMap.get(blk));
         });
 
-        /*for (int i = 0; i < AsmRt.calleeRegs.size(); i++) {
+        for (int i = 0; i < AsmRt.calleeRegs.size(); i++) {
             outblk.addInst(new Mv(AsmRt.calleeRegs.get(i), outblk, calleeMap.get(i)));
-        }*/
+        }
         ((VirtualReg) vreg).useTime++;
         ((VirtualReg) vreg).appearBlks.add(outblk);
         outblk.addInst(new Mv(AsmRt.phyRegs.get(1), outblk, vreg));
