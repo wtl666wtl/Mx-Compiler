@@ -3,6 +3,8 @@ package Assembly.AsmInstruction;
 import Assembly.AsmBlock;
 import Assembly.AsmOperand.Reg;
 
+import java.util.HashSet;
+
 public class Bz extends BaseAsmInstruction{
 
     public Reg rs;
@@ -23,5 +25,22 @@ public class Bz extends BaseAsmInstruction{
 
     @Override
     public void resolveSLImm(int stackLength){}
+
+    @Override
+    public HashSet<Reg> defs() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public HashSet<Reg> uses() {
+        HashSet<Reg> use = new HashSet<>();
+        use.add(rs);
+        return use;
+    }
+
+    @Override
+    public void changeUse(Reg origin, Reg change) {
+        if(rs == origin)rs = change;
+    }
 
 }

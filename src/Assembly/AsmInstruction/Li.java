@@ -3,6 +3,9 @@ package Assembly.AsmInstruction;
 import Assembly.AsmBlock;
 import Assembly.AsmOperand.Imm;
 import Assembly.AsmOperand.Reg;
+import Assembly.AsmOperand.StackLengthImm;
+
+import java.util.HashSet;
 
 public class Li extends BaseAsmInstruction {
 
@@ -19,5 +22,26 @@ public class Li extends BaseAsmInstruction {
     }
 
     @Override
-    public void resolveSLImm(int stackLength){}//no SLImm
+    public void resolveSLImm(int stackLength){
+        if(val instanceof StackLengthImm)
+            val = new Imm(val.val + stackLength);
+    }
+
+    @Override
+    public HashSet<Reg> defs() {
+        HashSet<Reg> use = new HashSet<>();
+        use.add(rd);
+        return use;
+    }
+
+    @Override
+    public HashSet<Reg> uses() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public void changeUse(Reg origin, Reg change) {
+
+    }
+
 }

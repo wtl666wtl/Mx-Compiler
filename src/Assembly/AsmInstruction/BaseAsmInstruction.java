@@ -2,8 +2,10 @@ package Assembly.AsmInstruction;
 
 import Assembly.AsmBlock;
 import Assembly.AsmOperand.Reg;
+import Assembly.AsmOperand.VirtualReg;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public abstract class BaseAsmInstruction {
 
@@ -28,7 +30,18 @@ public abstract class BaseAsmInstruction {
         this.blk = blk;
     }
 
+    public void changeRd(Reg origin, Reg change){
+        if(rd == origin)rd = change;
+    }
+
     public abstract String toString();
 
     public abstract void resolveSLImm(int stackLength);
+
+    public abstract HashSet<Reg> uses();
+
+    public abstract HashSet<Reg> defs();
+
+    public abstract void changeUse(Reg origin, Reg change);
+
 }

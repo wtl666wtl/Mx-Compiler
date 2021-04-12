@@ -4,6 +4,8 @@ import Assembly.AsmBlock;
 import Assembly.AsmOperand.GlobalReg;
 import Assembly.AsmOperand.Reg;
 
+import java.util.HashSet;
+
 public class La extends BaseAsmInstruction{
 
     public GlobalReg symbol;
@@ -20,5 +22,22 @@ public class La extends BaseAsmInstruction{
 
     @Override
     public void resolveSLImm(int stackLength){}
+
+    @Override
+    public HashSet<Reg> defs() {
+        HashSet<Reg> use = new HashSet<>();
+        use.add(rd);
+        return use;
+    }
+
+    @Override
+    public HashSet<Reg> uses() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public void changeUse(Reg origin, Reg change) {
+
+    }
 
 }

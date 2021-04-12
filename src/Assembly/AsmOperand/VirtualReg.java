@@ -21,6 +21,6 @@ public class VirtualReg extends Reg{
 
     @Override
     public String toString(){
-        return "What are you doing???";
+        return color == null ? "What are you doing?" : color.toString();
     }
 }

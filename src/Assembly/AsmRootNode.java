@@ -57,6 +57,8 @@ public class AsmRootNode {
     public ArrayList<PhyReg> callerRegs = new ArrayList<>(), calleeRegs = new ArrayList<>();
     public HashSet<GlobalReg> globalRegs = new HashSet<>();
     public HashMap<GlobalReg, String> constStrings = new HashMap<>();
+    public ArrayList<PhyReg> freeRegs = new ArrayList<>();
+    public int freeRegNum;
 
     public AsmRootNode(){
         for (int i = 0; i < 32; i++) {
@@ -65,6 +67,10 @@ public class AsmRootNode {
             if(saveStatus.get(i) == saverType.caller)callerRegs.add(PhyReg_i);
             if(saveStatus.get(i) == saverType.callee)calleeRegs.add(PhyReg_i);
         }
-        //todo:...
+        freeRegs.addAll(callerRegs);
+        freeRegs.addAll(calleeRegs);
+        freeRegs.add(freeRegs.remove(0));
+        freeRegNum = freeRegs.size();
     }
+
 }

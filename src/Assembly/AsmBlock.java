@@ -1,11 +1,10 @@
 package Assembly;
 
 import Assembly.AsmInstruction.*;
+import Assembly.AsmOperand.Reg;
+import Backend.SmartTag;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.LinkedTransferQueue;
 
 public class AsmBlock {
@@ -14,9 +13,15 @@ public class AsmBlock {
     public ArrayList<AsmBlock> preblks = new ArrayList<>();
     public ArrayList<AsmBlock> sucblks = new ArrayList<>();
     public LinkedList<BaseAsmInstruction> stmts = new LinkedList<>();
+    public int notFree = 0;
+    public LinkedList<SmartTag> freeList = new LinkedList<>();
+    public HashSet<Reg> liveIn =new HashSet<>(), liveOut = new HashSet<>();
 
-    public AsmBlock(String name){
+    public AsmBlock(String name, AsmRootNode AsmRt){
         this.name = name;
+        for(int i = 3; i < 10; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
+        for(int i = 18; i < 28; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
+        for(int i = 29; i < 32; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
     }
 
     public void addInst(BaseAsmInstruction inst){

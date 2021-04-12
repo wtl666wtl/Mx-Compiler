@@ -4,7 +4,9 @@ import Assembly.AsmBlock;
 import Assembly.AsmOperand.Imm;
 import Assembly.AsmOperand.Reg;
 
-public class lui extends BaseAsmInstruction{//using before Store GlobalVar
+import java.util.HashSet;
+
+public class lui extends BaseAsmInstruction{//using only before Store GlobalVar
 
     public Imm addr;
 
@@ -20,4 +22,22 @@ public class lui extends BaseAsmInstruction{//using before Store GlobalVar
 
     @Override
     public void resolveSLImm(int stackLength){}
+
+    @Override
+    public HashSet<Reg> defs() {
+        HashSet<Reg> use = new HashSet<>();
+        use.add(rd);
+        return use;
+    }
+
+    @Override
+    public HashSet<Reg> uses() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public void changeUse(Reg origin, Reg change) {
+
+    }
+
 }

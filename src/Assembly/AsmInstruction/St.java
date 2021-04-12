@@ -1,8 +1,12 @@
 package Assembly.AsmInstruction;
 
 import Assembly.AsmBlock;
+import Assembly.AsmOperand.GlobalReg;
 import Assembly.AsmOperand.Imm;
 import Assembly.AsmOperand.Reg;
+import Assembly.AsmOperand.StackLengthImm;
+
+import java.util.HashSet;
 
 public class St extends BaseAsmInstruction{
 
@@ -28,6 +32,28 @@ public class St extends BaseAsmInstruction{
     }
 
     @Override
-    public void resolveSLImm(int stackLength){}//no SLImm
+    public void resolveSLImm(int stackLength){
+        if(offset instanceof StackLengthImm)
+            offset = new Imm(offset.val + stackLength);
+    }
+
+    @Override
+    public HashSet<Reg> defs() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public HashSet<Reg> uses() {
+        HashSet<Reg> use = new HashSet<>();
+        if(!(addr instanceof GlobalReg))use.add(addr);
+        use.add(val);
+        return use;
+    }
+
+    @Override
+    public void changeUse(Reg origin, Reg change) {
+        if(val == origin)val = change;
+        if(addr == origin)addr = change;
+    }
 
 }

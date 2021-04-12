@@ -3,6 +3,8 @@ package Assembly.AsmInstruction;
 import Assembly.AsmBlock;
 import Assembly.AsmOperand.Reg;
 
+import java.util.HashSet;
+
 public class RType extends BaseAsmInstruction{
 
     public Reg rs1, rs2;
@@ -22,5 +24,26 @@ public class RType extends BaseAsmInstruction{
 
     @Override
     public void resolveSLImm(int stackLength){}
+
+    @Override
+    public HashSet<Reg> defs() {
+        HashSet<Reg> use = new HashSet<>();
+        use.add(rd);
+        return use;
+    }
+
+    @Override
+    public HashSet<Reg> uses() {
+        HashSet<Reg> use = new HashSet<>();
+        use.add(rs1);
+        use.add(rs2);
+        return use;
+    }
+
+    @Override
+    public void changeUse(Reg origin, Reg change) {
+        if(rs1 == origin)rs1 = change;
+        if(rs2 == origin)rs2 = change;
+    }
 
 }
