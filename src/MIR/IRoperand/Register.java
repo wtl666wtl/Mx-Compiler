@@ -24,6 +24,7 @@ public class Register extends BaseOperand{
             inst.replaceUse(this, newOperand);
             newOperand.appear(inst);
         });
+        positions.clear();
     }
 
     @Override
