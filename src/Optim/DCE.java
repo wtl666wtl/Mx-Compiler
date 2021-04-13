@@ -81,9 +81,11 @@ public class DCE {
                                     inst instanceof Zext || inst instanceof Malloc ||
                                     inst instanceof GetElementPtr || inst instanceof Call && judgeCall((Call) inst)) {
                                 Register rd = inst.rd;
+                                int tot = 0;
                                 while (rd != null && rd.positions.size() == 1) {
+                                    tot++;
                                     BaseInstruction usedInst = rd.positions.iterator().next();
-                                    if(!(usedInst instanceof Load || usedInst instanceof Binary ||
+                                    if(tot > 10000 || !(usedInst instanceof Load || usedInst instanceof Binary ||
                                             usedInst instanceof Icmp || usedInst instanceof BitCast ||
                                             usedInst instanceof Zext || usedInst instanceof Malloc ||
                                             usedInst instanceof GetElementPtr || usedInst instanceof Phi ||
@@ -92,7 +94,7 @@ public class DCE {
                                         hasChange = true;
                                         break;
                                     }
-                                    rd = usedInst.rd;
+                                    rd = usedInst.rd;//System.out.println(usedInst);
                                 }
                                 if (hasChange) {
                                     inst.deleteFlag = true;
