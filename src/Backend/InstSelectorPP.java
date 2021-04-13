@@ -158,12 +158,7 @@ public class InstSelectorPP {
             });
             AsmFunction AsmFunc = new AsmFunction(funcName, blkMap.get(func.inblk), blkMap.get(func.outblk));
             funcMap.put(func, AsmFunc);
-            /*for (int i = 8; i < func.funType.paramList.size(); i++) {
-                Param param = new Param(i, func.funType.paramList.get(i).type.width);
-                regMap.put(func.funType.paramList.get(i), param);
-                AsmFunc.params.add(param);
-            }*/
-            //func.funType.paramList.forEach(parameter -> AsmFunc.params.add(getAsmReg(parameter)));
+            func.funType.paramList.forEach(parameter -> AsmFunc.params.add(getAsmReg(parameter)));
             AsmRt.funcs.add(AsmFunc);
         });
         rt.funcs.forEach((funcName, func) -> visitFounc(func));
@@ -172,7 +167,7 @@ public class InstSelectorPP {
     void visitFounc(Function func){
         curFunc = funcMap.get(func);
         vregCounter = 0;
-        func.funType.paramList.forEach(parameter -> curFunc.params.add(getAsmReg(parameter)));
+        //func.funType.paramList.forEach(parameter -> curFunc.params.add(getAsmReg(parameter)));
         AsmBlock inblk = curFunc.inblk, outblk = curFunc.outblk;
         ArrayList<VirtualReg> calleeMap = new ArrayList<>();
         //sp

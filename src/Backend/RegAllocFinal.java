@@ -10,24 +10,44 @@ import java.util.*;
 
 public class RegAllocFinal {
 
+    public static class edge {
+
+        public Reg x, y;
+
+        public edge(Reg u, Reg v) {
+            this.x = u;
+            this.y = v;
+        }
+
+        @Override
+        public boolean equals(Object it) {
+            return (it instanceof edge && ((edge) it).x == x && ((edge) it).y == y);
+        }
+
+        @Override
+        public int hashCode() {
+            return x.toString().hashCode() ^ y.toString().hashCode();
+        }
+    }
+
     public AsmRootNode AsmRt;
     public int stackLength = 0;
     public AsmFunction curFunc;
     public HashSet<Reg> colors;
 
     public HashSet<Mv> MvWorkList = new LinkedHashSet<>();
-    public HashSet<Mv> activeMvSet = new LinkedHashSet<>();
-    public HashSet<Mv> mergedMvSet = new LinkedHashSet<>();
-    public HashSet<Mv> bindedMvSet = new LinkedHashSet<>();
-    public HashSet<Mv> frozenMvSet = new LinkedHashSet<>();
+    public HashSet<Mv> activeMvSet = new HashSet<>();
+    public HashSet<Mv> mergedMvSet = new HashSet<>();
+    public HashSet<Mv> bindedMvSet = new HashSet<>();
+    public HashSet<Mv> frozenMvSet = new HashSet<>();
 
     public HashSet<Reg> spillWorkList = new LinkedHashSet<>();
-    public HashSet<Reg> freezeWorkList = new LinkedHashSet<>();
+    public HashSet<Reg> freezeWorkList = new HashSet<>();
     public HashSet<Reg> simplifyWorkList = new LinkedHashSet<>();
     public HashSet<Reg> spilledNodes = new LinkedHashSet<>();
-    public HashSet<Reg> coloredNodes = new LinkedHashSet<>();
+    public HashSet<Reg> coloredNodes = new HashSet<>();
     public HashSet<Reg> mergedNodes = new LinkedHashSet<>();
-    public HashSet<Reg> spillIntroduce = new LinkedHashSet<>();
+    public HashSet<Reg> spillIntroduce = new HashSet<>();
     public HashSet<Reg> initial = new LinkedHashSet<>();
 
     public HashSet<edge> Edge = new HashSet<>();
@@ -105,7 +125,15 @@ public class RegAllocFinal {
                 initial.addAll(inst.uses());
         }));
         initial.removeAll(colors);
-        initial.forEach(Reg::clear);
+        //initial.forEach(Reg::clear);
+        initial.forEach(reg -> {
+            reg.weight = 0;
+            reg.alias = null;
+            reg.color = null;
+            reg.degree = 0;
+            reg.edgeSet.clear();
+            reg.MvSet.clear();
+        });
 
         colors.forEach(phyReg -> {
             phyReg.degree = inf;
@@ -130,13 +158,8 @@ public class RegAllocFinal {
     public void addEdge(Reg x, Reg y){
         edge e = new edge(x, y);
         if(x != y && !Edge.contains(e)){
-            Edge.add(e);
+            Edge.add(new edge(x, y));
             Edge.add(new edge(y, x));
-            if(x instanceof VirtualReg && y instanceof VirtualReg){
-                //System.out.println("---Edge---");
-                //System.out.println(((VirtualReg)x).index);
-                //System.out.println(((VirtualReg)y).index);
-            }
             if(!(colors.contains(x))){
                 x.degree++;
                 x.edgeSet.add(y);
@@ -148,11 +171,17 @@ public class RegAllocFinal {
         }
     }
 
+    //public int cnt = 0, num = 0;
     public void build(){
         curFunc.blks.forEach(blk -> {
+            //cnt=0;
             HashSet<Reg> curLive = new HashSet<>(blk.liveOut);
-            for(Iterator<BaseAsmInstruction> p = blk.stmts.descendingIterator(); p.hasNext();) {
-                BaseAsmInstruction inst = p.next();
+            for(ListIterator<BaseAsmInstruction> p = blk.stmts.listIterator(blk.stmts.size()); p.hasPrevious();) {
+                BaseAsmInstruction inst = p.previous();
+                /*if(cnt==1){
+                    System.out.println(inst);
+                    System.out.println(p.nextIndex());}*/
+                //System.out.println();
                 if(inst instanceof Mv){
                     curLive.removeAll(inst.uses());
                     HashSet<Reg> MvAbout = inst.uses();
@@ -163,13 +192,13 @@ public class RegAllocFinal {
                 HashSet<Reg> defs = inst.defs();
                 curLive.add(AsmRt.phyRegs.get(0));
                 curLive.addAll(defs);
-                //System.out.println(inst);
-                //curLive.forEach(System.out::println);
+
                 defs.forEach(def -> curLive.forEach(reg -> addEdge(reg, def)));
 
                 curLive.removeAll(defs);
                 curLive.addAll(inst.uses());
             }
+            //System.out.println(cnt);
         });
     }
 
@@ -268,7 +297,7 @@ public class RegAllocFinal {
     }
 
     public boolean conservative(HashSet<Reg> nodes){
-        int num= 0;
+        int num = 0;
         for(Reg x : nodes)num += x.degree >= tot ? 1 : 0;
         return num < tot;
     }
@@ -398,8 +427,9 @@ public class RegAllocFinal {
                             if (inst instanceof Mv && ((Mv) inst).rs == reg && inst.rd.stackOffset == null) {
                                 BaseAsmInstruction changeInst =
                                         new Ld(inst.rd, blk, sp, reg.stackOffset, ((VirtualReg) reg).width);
-                                p.remove();
-                                p.add(changeInst);
+                                //p.remove();
+                                //p.add(changeInst);
+                                p.set(changeInst);
                                 inst = changeInst;
                             } else {
                                 VirtualReg tmp = new VirtualReg(++curFunc.vregCounter, ((VirtualReg) reg).width);
@@ -417,15 +447,16 @@ public class RegAllocFinal {
                         if(inst instanceof Mv && ((Mv) inst).rs.stackOffset == null){
                             BaseAsmInstruction changeInst =
                                     new St(blk, sp, ((Mv) inst).rs, def.stackOffset, ((VirtualReg) def).width);
-                            p.remove();
-                            p.add(changeInst);
+                            //p.remove();
+                            //p.add(changeInst);
+                            p.set(changeInst);
                             inst = changeInst;
                         } else {
                             VirtualReg tmp = new VirtualReg(++curFunc.vregCounter, ((VirtualReg)def).width);
                             spillIntroduce.add(tmp);
                             inst.changeRd(def, tmp);
                             p.add(new St(blk, sp, tmp, def.stackOffset, tmp.width));
-                            p.previous();//may not need?!
+                            p.previous();//may not need?
                         }
                     }
                 }
@@ -446,6 +477,7 @@ public class RegAllocFinal {
                 else if(usedInMv(it))freezeWorkList.add(it);
                 else simplifyWorkList.add(it);
             });
+
 
             while(!(freezeWorkList.isEmpty() && simplifyWorkList.isEmpty()
                     && MvWorkList.isEmpty() && spillWorkList.isEmpty())){
