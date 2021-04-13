@@ -1,6 +1,7 @@
 package Optim;
 
 import Assembly.AsmOperand.Reg;
+import Backend.DomGen;
 import MIR.*;
 import MIR.IRinstruction.*;
 import MIR.IRoperand.Register;
@@ -121,7 +122,7 @@ public class DCE {
             }
             flag |= hasChange;
         }
-
+        if(flag)rt.funcs.forEach((s, func) -> new DomGen(func).workFunc());
     }
 
     public boolean work(){

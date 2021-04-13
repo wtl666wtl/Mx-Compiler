@@ -14,7 +14,7 @@ public class Optimization {
         boolean flag = true;
         while(flag){
             flag = new DCE(rt).work();
-
+            flag |= new ConstEval(rt).work();
         }
     }
 }
