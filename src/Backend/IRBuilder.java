@@ -841,7 +841,7 @@ public class IRBuilder implements ASTVisitor {
             //System.out.println(func.isMethod);
             Call call = new Call((Register)it.operand, curblk, func.IRFunc, params);
             curblk.addInst(call);
-            if(!rt.builtInFuncs.containsKey(func.IRFunc.name))curFunc.callFuncs.add(func.IRFunc);
+            if(!rt.builtInFuncs.containsKey(func.IRFunc.name) && func.IRFunc != curFunc)curFunc.callFuncs.add(func.IRFunc);
             //if(!rt.builtInFuncs.containsKey(func.IRFunc.name) && curFunc != func.IRFunc)func.IRFunc.appear.add(call);
         }
 

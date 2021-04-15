@@ -79,6 +79,7 @@ public class DomGen {
             for(Block preblk : blk.preblks){
                 //System.out.println(blk.name);
                 //System.out.println(preblk.name);
+                //System.out.println(func.funcBlocks.contains(preblk));
                 //System.out.println(dfsOrder.get(preblk));
                 Block evalblk = eval(preblk);
                 //System.out.println(sDom.get(blk).name);
