@@ -16,7 +16,7 @@ public class Inline {
     public boolean flag = false;
     static public int inlineCnt = 0;
     static public int limit = 10;
-    static public int maxLimit = 20;
+    static public int maxLimit = 30;
 
     public Inline(rootNode rt){
         this.rt = rt;
@@ -28,8 +28,9 @@ public class Inline {
         HashSet<Function> goodFunc = new HashSet<>();
         rt.funcs.forEach((s, func) -> {
             if(func.appear.size() == 0 && !func.name.equals("main")) uselessFunc.add(s);
-            else if(func.callFuncs.size() == 0)goodFunc.add(func);
+            else if(func.callFuncs.isEmpty())goodFunc.add(func);
         });
+        //System.out.println(goodFunc.size());
         if(uselessFunc.size() > 0){
             for(String s : uselessFunc)rt.funcs.remove(s);
         }
@@ -44,18 +45,6 @@ public class Inline {
                 }
             }
         }));
-        if(waitList.isEmpty()){
-            rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(blk -> {
-                for(BaseInstruction inst : blk.stmts){
-                    if(inst instanceof Call){
-                        Call it = (Call) inst;
-                        if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
-                                && (inlineCnt < maxLimit && waitList.size() < limit))
-                            waitList.put(it, func);
-                    }
-                }
-            }));
-        }
         for(Map.Entry<Call, Function> entry : waitList.entrySet()){
             Call call = entry.getKey();
             Function func = entry.getValue();
@@ -137,6 +126,13 @@ public class Inline {
         }
         //System.out.println(curblk.sucblks.size());
         func.funcBlocks = newBlocks;
+        func.callFuncs.clear();
+        func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
+            if(inst instanceof Call){
+                Call it = (Call) inst;
+                if(!rt.builtInFuncs.containsValue(it.callee))func.callFuncs.add(it.callee);
+            }
+        }));
         new DomGen(func).workFunc();
     }
 
