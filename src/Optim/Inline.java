@@ -1,6 +1,7 @@
 package Optim;
 
 import Backend.DomGen;
+import Backend.FuncBlockCollector;
 import Backend.inlineCorrespond;
 import MIR.Block;
 import MIR.Function;
@@ -16,7 +17,7 @@ public class Inline {
     public boolean flag = false;
     static public int inlineCnt = 0;
     static public int limit = 10;
-    static public int maxLimit = 30;
+    static public int maxLimit = 20;
 
     public Inline(rootNode rt){
         this.rt = rt;
@@ -108,7 +109,7 @@ public class Inline {
         if(func.outblk.equals(curblk) && newIn != newOut) func.outblk = newOut;
         LinkedHashSet<Block> newBlocks = new LinkedHashSet<>();
         //func.funcBlocks.clear();
-        for(Block blk : func.funcBlocks){
+        /*for(Block blk : func.funcBlocks){
             if(blk != curblk)newBlocks.add(blk);
             else{
                 newBlocks.add(blk);
@@ -123,9 +124,9 @@ public class Inline {
                     }
                 });
             }
-        }
+        }*/
         //System.out.println(curblk.sucblks.size());
-        func.funcBlocks = newBlocks;
+        func.funcBlocks = FuncBlockCollector.work(func.inblk);
         func.callFuncs.clear();
         func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
             if(inst instanceof Call){

@@ -1,6 +1,7 @@
 package Optim;
 
 import Backend.DomGen;
+import Backend.FuncBlockCollector;
 import MIR.Block;
 import MIR.IRinstruction.*;
 import MIR.IRoperand.*;
@@ -27,7 +28,17 @@ public class ConstEval {
     public boolean work(){
         flag = false;
         rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(this::workInBlock));
-        AtomicBoolean change = new AtomicBoolean(true);
+        rt.funcs.forEach((s, func) -> {
+            LinkedHashSet<Block> tmp = FuncBlockCollector.work(func.inblk);
+            func.funcBlocks.forEach(blk -> {
+                if(!tmp.contains(blk)){
+                    blk.deleteTerminator();
+                    blk.stmts.forEach(inst -> inst.deleteSelf(false));
+                }
+            });
+            func.funcBlocks = tmp;
+        });
+        /*AtomicBoolean change = new AtomicBoolean(true);
         while(change.get()) {
             change.set(false);
             rt.funcs.forEach((s, func) -> {
@@ -40,13 +51,16 @@ public class ConstEval {
                         if (blk.preblks.size() == 0 && blk != func.inblk) {
                             useless.add(blk);
                             blk.deleteTerminator();
+                            blk.stmts.forEach(inst -> inst.deleteSelf(false));
+                            //blk.sucblks.forEach(sucblk -> sucblk.preblks.remove(blk));
                         }
                     }
                     func.funcBlocks.removeAll(useless);
                     if (useless.size() > 0) change.set(true);
+                    System.out.println("?");
                 }while (useless.size() > 0);
             });
-        }
+        }*/
 
         /*rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(blk -> {
             System.out.println("=====================");
