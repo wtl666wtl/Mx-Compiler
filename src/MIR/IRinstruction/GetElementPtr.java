@@ -55,6 +55,6 @@ public class GetElementPtr extends BaseInstruction{
 
     @Override
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
-        newblk.addInst(new GetElementPtr((Register) a.get(rd), newblk, stepType, a.get(target), a.get(stepNum), a.get(offset)));
+        newblk.addInst(new GetElementPtr((Register) a.get(rd), newblk, stepType, a.get(target), a.get(stepNum), offset == null ? null : a.get(offset)));
     }
 }
