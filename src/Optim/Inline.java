@@ -16,7 +16,7 @@ public class Inline {
     public boolean flag = false;
     static public int inlineCnt = 0;
     static public int limit = 10;
-    static public int maxLimit = 100;
+    static public int maxLimit = 20;
 
     public Inline(rootNode rt){
         this.rt = rt;
