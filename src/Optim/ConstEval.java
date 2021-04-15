@@ -1,6 +1,6 @@
 package Optim;
 
-import Assembly.AsmOperand.Reg;
+import Backend.DomGen;
 import MIR.Block;
 import MIR.IRinstruction.*;
 import MIR.IRoperand.*;
@@ -10,8 +10,10 @@ import Util.error.internalError;
 import Util.position;
 
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ConstEval {
 
@@ -25,6 +27,37 @@ public class ConstEval {
     public boolean work(){
         flag = false;
         rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(this::workInBlock));
+        AtomicBoolean change = new AtomicBoolean(true);
+        while(change.get()) {
+            change.set(false);
+            rt.funcs.forEach((s, func) -> {
+                LinkedHashSet<Block> useless = new LinkedHashSet<>();
+                do {
+                    useless.clear();
+                    //System.out.println(func.name);
+                    for (Block blk : func.funcBlocks) {
+                        //System.out.println(blk.preblks.size());
+                        if (blk.preblks.size() == 0 && blk != func.inblk) {
+                            useless.add(blk);
+                            blk.deleteTerminator();
+                        }
+                    }
+                    func.funcBlocks.removeAll(useless);
+                    if (useless.size() > 0) change.set(true);
+                }while (useless.size() > 0);
+            });
+        }
+
+        /*rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(blk -> {
+            System.out.println("=====================");
+            System.out.println(blk.name);
+            System.out.println("#===================#");
+            blk.preblks.forEach(blk1 -> System.out.println(blk1.name));
+            System.out.println("#===================#");
+            blk.sucblks.forEach(blk2 -> System.out.println(blk2.name));
+        }));
+        System.out.println("===END===");*/
+        rt.funcs.forEach((s, func) -> new DomGen(func).workFunc());
         return flag;
     }
 
@@ -120,6 +153,7 @@ public class ConstEval {
                 if(it.cond == null)continue;
                 BaseOperand cond = it.cond;
                 if(cond instanceof ConstBool){
+                    //System.out.println("$       " + blk.name);
                     blk.deleteTerminator();
                     inst.deleteSelf(false);
                     if(((ConstBool) cond).val){
