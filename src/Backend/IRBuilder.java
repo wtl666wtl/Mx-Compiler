@@ -264,8 +264,11 @@ public class IRBuilder implements ASTVisitor {
         it.parameters.forEach(p -> p.accept(this));
         isParameter = false;
 
-        if(curFunc.name.equals("main"))
-            curblk.addInst(new Call(null, curblk, rt.funcs.get("__init"), new ArrayList<>()));
+        if(curFunc.name.equals("main")) {
+            Call call = new Call(null, curblk, rt.funcs.get("__init"), new ArrayList<>());
+            curblk.addInst(call);
+            rt.funcs.get("__init").appear.add(call);
+        }
 
         it.body.accept(this);
 
@@ -541,6 +544,13 @@ public class IRBuilder implements ASTVisitor {
             retInst = new Ret(curblk, null);
         } else {
             it.value.accept(this);
+            BaseInstruction inst = curblk.stmts.size() > 0 ? curblk.stmts.getLast() : null;
+            /*if(inst instanceof Call){
+                System.out.println(((Call)inst).callee.name);
+            }*/
+            if(inst instanceof Call && ((Call)inst).callee.equals(curFunc)){
+                ((Call)inst).loopCall = true;
+            }
             BaseOperand retOperand;
             if(it.value.operand.type.dim > curFunc.funType.retType.dim) {//Pointer
                 retOperand = getPointer(it.value.operand, true);
@@ -829,8 +839,10 @@ public class IRBuilder implements ASTVisitor {
                 params.add(getPointer(pd.operand, true));
             });
             //System.out.println(func.isMethod);
-            curblk.addInst(new Call((Register)it.operand, curblk, func.IRFunc, params));
+            Call call = new Call((Register)it.operand, curblk, func.IRFunc, params);
+            curblk.addInst(call);
             if(!rt.builtInFuncs.containsKey(func.IRFunc.name))curFunc.callFuncs.add(func.IRFunc);
+            //if(!rt.builtInFuncs.containsKey(func.IRFunc.name) && curFunc != func.IRFunc)func.IRFunc.appear.add(call);
         }
 
         manageBrPhi(it);

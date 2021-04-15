@@ -66,12 +66,17 @@ public class SolvePhi {
         //compress jump-only blks
 
         HashSet<Block> jmpOnlySet = new HashSet<>();
+        //System.out.println(func.name);
         func.funcBlocks.forEach(blk -> {
             BaseInstruction it = blk.getHead();
+            //System.out.println(blk.stmts.size());
+            //blk.stmts.forEach(System.out::println);
             if(it instanceof Br && ((Br)it).cond == null){
-                //System.out.println(it);
-                if(blk != func.inblk || ((Br)it).iftrue.preblks.size() == 1)
+                if(blk != func.inblk || ((Br)it).iftrue.preblks.size() == 1) {
                     jmpOnlySet.add(blk);
+                    //System.out.println(blk.name);
+                    //System.out.println("...");
+                }
             }
         });
 

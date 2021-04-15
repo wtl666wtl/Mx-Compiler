@@ -69,7 +69,9 @@ public class RegAllocFinal {
         AsmRt.funcs.forEach(func -> {
             stackLength = 0;
             curFunc = func;
+            //System.out.println("?");
             workFunc(func);
+            //System.out.println("?");
             stackLength += func.paramStSize;
             if(stackLength % 16 != 0)stackLength += 16 - stackLength % 16;
             finalProcess();
@@ -81,23 +83,34 @@ public class RegAllocFinal {
                 blk.stmts.forEach(inst -> inst.resolveSLImm(stackLength)));
         curFunc.blks.forEach(blk ->
                 blk.stmts.removeIf(inst -> inst instanceof Mv && ((Mv) inst).rs.color == inst.rd.color));
-        //todo: optimal -> merge blocks
-        /*HashSet<AsmBlock> hasVisited = new HashSet<>();
-        Queue<AsmBlock> Q = new LinkedList<>();
-        Q.add(curFunc.inblk);
-        hasVisited.add(curFunc.inblk);
-        while(!Q.isEmpty()){
-            AsmBlock curblk = Q.poll();
-            if(curblk.stmts.getLast() instanceof Jp it){
-                if(!it.destBlk){
-                    curblk.
-                }
+
+        HashSet<AsmBlock> jmpOnlySet = new HashSet<>();
+        AsmFunction func = curFunc;
+        func.blks.forEach(blk -> {
+            BaseAsmInstruction it = blk.stmts.getFirst();
+            if(it instanceof Jp)jmpOnlySet.add(blk);
+        });
+
+        jmpOnlySet.forEach(blk -> {
+            AsmBlock sucblk = blk;
+            while (jmpOnlySet.contains(sucblk)) {
+                sucblk = ((Jp)sucblk.stmts.getFirst()).destBlk;
             }
-            curblk.sucblks.forEach(sucblk -> {
-                if(!hasVisited.contains(sucblk))Q.offer(sucblk);
-            });
-            hasVisited.addAll(curblk.sucblks);
-        }*/
+            HashSet<AsmBlock> preblks = new HashSet<>(blk.preblks);
+            for (AsmBlock preblk : preblks) {
+                for(BaseAsmInstruction inst : preblk.stmts){
+                    if(inst instanceof Jp && ((Jp)inst).destBlk == blk)((Jp)inst).destBlk = sucblk;
+                    else if(inst instanceof Bz && ((Bz)inst).destblk == blk)((Bz)inst).destblk = sucblk;
+                }
+                preblk.sucblks.remove(blk);
+                preblk.sucblks.add(sucblk);
+            }
+            sucblk.preblks.remove(blk);
+            sucblk.sucblks.addAll(blk.preblks);
+            if(blk == func.inblk)
+                func.inblk = sucblk;
+        });
+        func.blks.removeAll(jmpOnlySet);
     }
 
     public void clearAll(){
@@ -456,7 +469,7 @@ public class RegAllocFinal {
                             spillIntroduce.add(tmp);
                             inst.changeRd(def, tmp);
                             p.add(new St(blk, sp, tmp, def.stackOffset, tmp.width));
-                            p.previous();//may not need?
+                            p.previous();
                         }
                     }
                 }

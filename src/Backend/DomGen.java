@@ -77,6 +77,9 @@ public class DomGen {
         for (int i = total; i > 1; i--) {
             Block blk = dfsIndex.get(i);
             for(Block preblk : blk.preblks){
+                //System.out.println(blk.name);
+                //System.out.println(preblk.name);
+                //System.out.println(dfsOrder.get(preblk));
                 Block evalblk = eval(preblk);
                 //System.out.println(sDom.get(blk).name);
                 //System.out.println(evalblk.name);
