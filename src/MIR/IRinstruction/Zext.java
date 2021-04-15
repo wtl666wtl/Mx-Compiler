@@ -1,9 +1,12 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class Zext extends BaseInstruction{
@@ -32,5 +35,10 @@ public class Zext extends BaseInstruction{
     @Override
     public void replaceUse(Register orignOperand, BaseOperand newOperand) {
         if(orign == orignOperand)orign = newOperand;
+    }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        newblk.addInst(new Zext((Register) a.get(rd), newblk, a.get(orign)));
     }
 }

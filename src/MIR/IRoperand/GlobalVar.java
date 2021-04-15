@@ -32,4 +32,8 @@ public class GlobalVar extends BaseOperand{
         positions.remove(inst);
     }
 
+    @Override
+    public BaseOperand inlineCopy() {
+        return this;
+    }
 }

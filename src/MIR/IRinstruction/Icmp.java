@@ -1,9 +1,12 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class Icmp extends BaseInstruction{
@@ -43,4 +46,10 @@ public class Icmp extends BaseInstruction{
         if(arg1 == orignOperand)arg1 = newOperand;
         if(arg2 == orignOperand)arg2 = newOperand;
     }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        newblk.addInst(new Icmp((Register) a.get(rd), newblk, opCode, a.get(arg1), a.get(arg2)));
+    }
+
 }

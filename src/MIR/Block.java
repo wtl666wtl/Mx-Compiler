@@ -87,7 +87,7 @@ public class Block {
             }
         }
         stmts.removeLast();
-        //oldTerminator.deleteSelf(true);
+        oldTerminator.deleteSelf(false);
     }
 
     public boolean returnTerminated(){
@@ -113,6 +113,62 @@ public class Block {
             }
             deleteTerminator();
             addTerminator(newTerminator);
+        }
+    }
+
+    public void inlineSplit(Block after, BaseInstruction pos){
+        sucblks.forEach(sucblk ->{
+            sucblk.Phis.forEach((register, phi) -> {
+                for(int i = 0; i < phi.myInfo.vals.size(); i++){
+                    if(phi.myInfo.blks.get(i).equals(this))
+                        phi.myInfo.blks.set(i, after);
+                }
+            });
+            sucblk.preblks.remove(this);
+            sucblk.preblks.add(after);
+        });
+        after.sucblks = sucblks;
+        sucblks = new ArrayList<>();
+
+        isTerminated = false;
+        after.isTerminated = true;
+        boolean flag = false;
+        for(ListIterator<BaseInstruction> p = stmts.listIterator(); p.hasNext();){
+            BaseInstruction inst = p.next();
+            if(inst == pos)flag = true;
+            if(flag){
+                p.remove();
+                if(inst == pos){
+                    inst.deleteSelf(false);
+                    continue;
+                }
+                inst.blk = after;
+                after.addInst(inst);
+            }
+        }
+        //System.out.println(name);
+        //System.out.println(after.stmts.size());
+    }
+
+    public void inlineMerge(Block blk){
+        sucblks = blk.sucblks;
+        blk.sucblks.forEach(sucblk -> {
+            sucblk.Phis.forEach((register, phi) -> {
+                for(int i = 0; i < phi.myInfo.vals.size(); i++){
+                    if(phi.myInfo.blks.get(i).equals(blk))
+                        phi.myInfo.blks.set(i, this);
+                }
+            });
+            sucblk.preblks.remove(blk);
+            //if(name.equals("main_in"))System.out.println("%%%    " + sucblk.name + " " + sucblk.preblks.size());
+            sucblk.preblks.add(this);
+        });
+        isTerminated = blk.isTerminated;
+        for(ListIterator<BaseInstruction> p = blk.stmts.listIterator(); p.hasNext();){
+            BaseInstruction inst = p.next();
+            inst.blk = this;
+            addInst(inst);
+            p.remove();
         }
     }
 

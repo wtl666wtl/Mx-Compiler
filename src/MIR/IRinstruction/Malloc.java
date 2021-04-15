@@ -1,9 +1,12 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class Malloc extends BaseInstruction{
@@ -33,4 +36,10 @@ public class Malloc extends BaseInstruction{
     public void replaceUse(Register orignOperand, BaseOperand newOperand) {
         if(length == orignOperand)length = newOperand;
     }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        newblk.addInst(new Malloc((Register) a.get(rd), newblk, a.get(length)));
+    }
+
 }

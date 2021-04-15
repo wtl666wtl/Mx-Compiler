@@ -30,4 +30,8 @@ public class Parameter extends BaseOperand{
         positions.remove(inst);
     }
 
+    @Override
+    public BaseOperand inlineCopy() {
+        return new Parameter(type, name + "_inlineCopy");
+    }
 }

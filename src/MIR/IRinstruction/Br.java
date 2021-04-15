@@ -1,9 +1,12 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class Br extends BaseInstruction{
@@ -30,11 +33,18 @@ public class Br extends BaseInstruction{
     @Override
     public void deleteSelf(boolean flag) {
         if(flag)blk.deleteInst(this);
-        cond.deleteAppear(this);
+        if(cond != null)cond.deleteAppear(this);
     }
 
     @Override
     public void replaceUse(Register orignOperand, BaseOperand newOperand) {
         if(cond == orignOperand)cond = newOperand;
     }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        if(cond == null)newblk.addTerminator(new Br(newblk, null, a.get(iftrue), null));
+        else newblk.addTerminator(new Br(newblk, a.get(cond), a.get(iftrue), a.get(iffalse)));
+    }
+
 }

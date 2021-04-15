@@ -1,9 +1,11 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.*;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 abstract public class BaseInstruction {
@@ -22,5 +24,7 @@ abstract public class BaseInstruction {
     public abstract void deleteSelf(boolean flag);
 
     public abstract String toString();
+
+    public abstract void inlineCopy(Block newblk, Function func, inlineCorrespond a);
 
 }

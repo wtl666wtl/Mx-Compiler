@@ -1,9 +1,14 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
+import Util.error.internalError;
+import Util.position;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class Move extends BaseInstruction{
@@ -31,4 +36,10 @@ public class Move extends BaseInstruction{
     public void replaceUse(Register orignOperand, BaseOperand newOperand) {
         if(origin == orignOperand)origin = newOperand;
     }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        throw new internalError("inline a Mv inst", new position(0, 0));
+    }
+
 }

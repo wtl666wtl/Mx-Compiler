@@ -1,11 +1,14 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 import MIR.IRtype.IRBaseType;
 import MIR.IRtype.IRPointerType;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class GetElementPtr extends BaseInstruction{
@@ -48,5 +51,10 @@ public class GetElementPtr extends BaseInstruction{
     public void replaceUse(Register orignOperand, BaseOperand newOperand) {
         if(target == orignOperand)target = newOperand;
         if(stepNum == orignOperand)stepNum = newOperand;
+    }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        newblk.addInst(new GetElementPtr((Register) a.get(rd), newblk, stepType, a.get(target), a.get(stepNum), a.get(offset)));
     }
 }

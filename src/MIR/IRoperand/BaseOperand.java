@@ -16,4 +16,6 @@ abstract public class BaseOperand {
     abstract public void appear(BaseInstruction inst);
 
     abstract public void deleteAppear(BaseInstruction inst);
+
+    abstract public BaseOperand inlineCopy();
 }

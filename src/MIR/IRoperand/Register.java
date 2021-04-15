@@ -43,4 +43,8 @@ public class Register extends BaseOperand{
         positions.remove(inst);
     }
 
+    @Override
+    public BaseOperand inlineCopy() {
+        return new Register(name + "_inlineCopy", type);
+    }
 }

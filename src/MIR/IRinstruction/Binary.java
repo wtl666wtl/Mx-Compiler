@@ -1,9 +1,12 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class Binary extends BaseInstruction {
@@ -44,5 +47,10 @@ public class Binary extends BaseInstruction {
     public void replaceUse(Register originOperand, BaseOperand newOperand) {
         if(lhs == originOperand)lhs = newOperand;
         if(rhs == originOperand)rhs = newOperand;
+    }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        newblk.addInst(new Binary((Register) a.get(rd), newblk, opCode, a.get(lhs), a.get(rhs)));
     }
 }

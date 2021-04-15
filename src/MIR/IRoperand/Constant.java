@@ -21,4 +21,10 @@ abstract public class Constant extends BaseOperand{
     public void deleteAppear(BaseInstruction inst) {
 
     }
+
+    @Override
+    public BaseOperand inlineCopy() {
+        return this;
+    }
+
 }

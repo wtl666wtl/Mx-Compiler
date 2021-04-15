@@ -1,11 +1,13 @@
 package MIR.IRinstruction;
 
 import Assembly.AsmOperand.Reg;
+import Backend.inlineCorrespond;
 import MIR.*;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class Phi extends BaseInstruction{
@@ -63,5 +65,15 @@ public class Phi extends BaseInstruction{
             if(myInfo.vals.get(i) == orignOperand)
                 myInfo.vals.set(i, newOperand);
         }
+    }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        phiInfo newPhiInfo = new phiInfo();
+        for (int i = 0; i < myInfo.vals.size(); i++) {
+            newPhiInfo.blks.add(a.get(myInfo.blks.get(i)));
+            newPhiInfo.vals.add(a.get(myInfo.vals.get(i)));
+        }
+        newblk.addPhi(new Phi((Register) a.get(rd), newblk, newPhiInfo));
     }
 }

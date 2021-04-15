@@ -1,9 +1,12 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.*;
 import MIR.IRtype.IRPointerType;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class Store extends BaseInstruction{
@@ -40,4 +43,10 @@ public class Store extends BaseInstruction{
         if(addr == orignOperand)addr = newOperand;
         if(storeVal == orignOperand)storeVal = newOperand;
     }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        newblk.addInst(new Store(newblk, a.get(addr), a.get(storeVal)));
+    }
+
 }

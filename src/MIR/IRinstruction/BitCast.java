@@ -1,9 +1,12 @@
 package MIR.IRinstruction;
 
+import Backend.inlineCorrespond;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
+import java.util.HashMap;
 import java.util.ListIterator;
 
 public class BitCast extends BaseInstruction{
@@ -33,4 +36,10 @@ public class BitCast extends BaseInstruction{
     public void replaceUse(Register originOperand, BaseOperand newOperand) {
         if(origin == originOperand)origin = newOperand;
     }
+
+    @Override
+    public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
+        newblk.addInst(new BitCast((Register) a.get(rd), newblk, a.get(origin)));
+    }
+
 }
