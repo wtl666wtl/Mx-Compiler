@@ -4,6 +4,7 @@ import Assembly.AsmBlock;
 import Assembly.AsmOperand.Imm;
 import Assembly.AsmOperand.Reg;
 
+import java.util.Collections;
 import java.util.HashSet;
 
 public class lui extends BaseAsmInstruction{//using only before Store GlobalVar
@@ -25,9 +26,7 @@ public class lui extends BaseAsmInstruction{//using only before Store GlobalVar
 
     @Override
     public HashSet<Reg> defs() {
-        HashSet<Reg> use = new HashSet<>();
-        use.add(rd);
-        return use;
+        return new HashSet<>(Collections.singletonList(rd));
     }
 
     @Override

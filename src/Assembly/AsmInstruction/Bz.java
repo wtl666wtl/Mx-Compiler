@@ -9,7 +9,7 @@ public class Bz extends BaseAsmInstruction{
 
     public Reg rs;
     public cmpType opCode;
-    AsmBlock destblk;
+    public AsmBlock destblk;
 
     public Bz(AsmBlock blk, Reg rs, BaseAsmInstruction.cmpType opCode, AsmBlock destblk){
         super(null, blk);
