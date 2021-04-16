@@ -77,7 +77,7 @@ public class InstSelectorPP {
     }
 
     public boolean onlyForBr(Register x, Block blk){
-        if(x.positions.size() == 1){
+        if(x.positions.size() == 1 && blk.stmts.size() >= 2){
             for(BaseInstruction inst : x.positions)
                 if(inst == blk.getTerminator()){
                     okInsts.add(x);
@@ -289,7 +289,7 @@ public class InstSelectorPP {
                 }
             } else if(inst instanceof Icmp){//TODO
                 Icmp it = (Icmp) inst;
-                if(onlyForBr(it.rd, blk))continue;
+                if(blk.stmts.size()>=2 && onlyForBr(it.rd, blk) && inst == blk.stmts.get(blk.stmts.size()-2))continue;
                 cmpType opCode = transOpCode(it.opCode);
                 //System.out.println(it.arg1);
                 if(opCode == cmpType.lt){
@@ -339,7 +339,7 @@ public class InstSelectorPP {
                 if(it.cond == null){//jp
                     curblk.addInst(new Jp(curblk, blkMap.get(it.iftrue)));
                 } else {//br
-                    if(blk.stmts.size() >=2 && it.cond instanceof Register && onlyForBr((Register) it.cond, blk) && okInsts.contains(it.cond)){
+                    if(it.cond instanceof Register && onlyForBr((Register) it.cond, blk) && okInsts.contains(it.cond)){
                         if(((Register) it.cond).defInst instanceof Icmp){
                             Icmp cmp = (Icmp) ((Register) it.cond).defInst;
                             if(cmp.opCode == Icmp.IcmpOpType.eq){
