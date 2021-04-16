@@ -79,10 +79,10 @@ public class RegAllocFinal {
     }
 
     public void finalProcess(){
-        curFunc.blks.forEach(blk ->
-                blk.stmts.forEach(inst -> inst.resolveSLImm(stackLength)));
-        curFunc.blks.forEach(blk ->
-                blk.stmts.removeIf(inst -> inst instanceof Mv && ((Mv) inst).rs.color == inst.rd.color));
+        curFunc.blks.forEach(blk ->{
+                blk.stmts.removeIf(inst -> inst instanceof Mv && ((Mv) inst).rs.color == inst.rd.color);
+                blk.stmts.forEach(inst -> inst.resolveSLImm(stackLength));
+        });
 
         HashSet<AsmBlock> jmpOnlySet = new HashSet<>();
         AsmFunction func = curFunc;
@@ -138,15 +138,15 @@ public class RegAllocFinal {
                 initial.addAll(inst.uses());
         }));
         initial.removeAll(colors);
-        //initial.forEach(Reg::clear);
-        initial.forEach(reg -> {
+        initial.forEach(Reg::clear);
+        /*initial.forEach(reg -> {
             reg.weight = 0;
             reg.alias = null;
             reg.color = null;
             reg.degree = 0;
             reg.edgeSet.clear();
             reg.MvSet.clear();
-        });
+        });*/
 
         colors.forEach(phyReg -> {
             phyReg.degree = inf;
@@ -244,8 +244,9 @@ public class RegAllocFinal {
             it.edgeSet.forEach(e -> {
                 //System.out.println(e);
                 //if(e instanceof VirtualReg)System.out.println(((VirtualReg)e).index);
-                if(colored.contains(getAlias(e)))
-                    freeColors.remove(getAlias(e).color);
+                Reg w = getAlias(e);
+                if(colored.contains(w))
+                    freeColors.remove(w.color);
             });
             if(freeColors.isEmpty())spilledNodes.add(it);
             else{
@@ -274,13 +275,22 @@ public class RegAllocFinal {
         int degree = it.degree;
         it.degree--;
         if(degree == tot){
-            HashSet<Reg> nodes = new HashSet<>(edges(it));
-            nodes.add(it);
-            enableMv(nodes);
+           // HashSet<Reg> nodes = new HashSet<>(edges(it));
+           // nodes.add(it);
+            enableMv(it);
             spillWorkList.remove(it);
             if(usedInMv(it))freezeWorkList.add(it);
             else simplifyWorkList.add(it);
         }
+    }
+
+    public void enableMv(Reg node){
+        MvInstSet(node).forEach(mv -> {
+            if(activeMvSet.contains(mv)){
+                activeMvSet.remove(mv);
+                MvWorkList.add(mv);
+            }
+        });
     }
 
     public void enableMv(HashSet<Reg> nodes){
@@ -321,9 +331,9 @@ public class RegAllocFinal {
         mergedNodes.add(y);
         y.alias = x;
         x.MvSet.addAll(y.MvSet);
-        HashSet<Reg> tmp = new HashSet<>();
-        tmp.add(y);
-        enableMv(tmp);
+        //HashSet<Reg> tmp = new HashSet<>();
+        //tmp.add(y);
+        enableMv(y);
         edges(y).forEach(z -> {
             addEdge(z, x);
             decreaseDegree(z);
@@ -357,7 +367,7 @@ public class RegAllocFinal {
             mergedMvSet.add(mv);
             addToSimplify(x);
         } else if(colors.contains(y) || Edge.contains(new edge(x, y))){
-            bindedMvSet.add(mv);
+            //bindedMvSet.add(mv);
             addToSimplify(x);
             addToSimplify(y);
         } else {
@@ -480,6 +490,7 @@ public class RegAllocFinal {
     public void workFunc(AsmFunction func){
         boolean flag = false;
         while(!flag){
+            //System.out.println("START");
             clearAll();
             init();
             funcCollector(func);
@@ -491,7 +502,7 @@ public class RegAllocFinal {
                 else simplifyWorkList.add(it);
             });
 
-
+            //System.out.println("??");
             while(!(freezeWorkList.isEmpty() && simplifyWorkList.isEmpty()
                     && MvWorkList.isEmpty() && spillWorkList.isEmpty())){
                 if(!simplifyWorkList.isEmpty())simplify();
@@ -499,10 +510,12 @@ public class RegAllocFinal {
                 else if(!freezeWorkList.isEmpty())freeze();
                 else spill();
             }
-
+            //System.out.println("MID");
             assignColor();
+            //System.out.println("MID2");
             flag = spilledNodes.isEmpty();
             if(!flag)rewrite();
+            //System.out.println("END");
         }
     }
 
@@ -510,8 +523,8 @@ public class RegAllocFinal {
     public HashSet<AsmBlock> hasVisited = new HashSet<>();
 
     public void collectorClear(){
-        blkDefs.clear();
-        blkUses.clear();
+        //blkDefs.clear();
+        //blkUses.clear();
         hasVisited.clear();
     }
 
