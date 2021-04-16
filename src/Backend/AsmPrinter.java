@@ -3,6 +3,7 @@ package Backend;
 import Assembly.AsmBlock;
 import Assembly.AsmFunction;
 import Assembly.AsmInstruction.BaseAsmInstruction;
+import Assembly.AsmInstruction.Jp;
 import Assembly.AsmOperand.GlobalReg;
 import Assembly.AsmRootNode;
 
@@ -38,7 +39,7 @@ public class AsmPrinter {
         defaultOut.println(func.name + ":");
         curFunc = func;
         curFuncBlkCnt = 0;
-        func.blks.forEach(blk -> blk.name = "." + curFunc.name + "_b." + curFuncBlkCnt++);
+        func.blks.forEach(blk -> blk.name = "." + curFunc.name + "_b." + (blk.blkCnt = curFuncBlkCnt++));
         func.blks.forEach(this::printBlk);
 
         defaultOut.println("\t.size\t" + func.name + ", " + ".-" + func.name + "\n");
@@ -70,6 +71,7 @@ public class AsmPrinter {
 
     public void printInst(BaseAsmInstruction inst){
         if(!inst.disableForImm){
+            if(inst instanceof Jp && ((Jp)inst).destBlk.name.equals("." + curFunc.name + "_b." + (inst.blk.blkCnt + 1)))return;
             defaultOut.println("\t" + inst.toString());
             return;
         }
