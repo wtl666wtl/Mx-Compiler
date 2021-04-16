@@ -16,6 +16,7 @@ import MIR.IRtype.IRPointerType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class InstSelectorPP {
 
@@ -29,6 +30,7 @@ public class InstSelectorPP {
     public HashMap<Block, AsmBlock> blkMap = new HashMap<>();
     public HashMap<Function, AsmFunction> funcMap = new HashMap<>();
     public PhyReg sp, t3, t4, t5;
+    public HashSet<Register> okInsts = new HashSet<>();
 
     public InstSelectorPP(AsmRootNode AsmRt){
         this.AsmRt = AsmRt;
@@ -77,7 +79,10 @@ public class InstSelectorPP {
     public boolean onlyForBr(Register x, Block blk){
         if(x.positions.size() == 1){
             for(BaseInstruction inst : x.positions)
-                if(inst == blk.getTerminator())return true;
+                if(inst == blk.getTerminator()){
+                    okInsts.add(x);
+                    return true;
+                }
         }
         return false;
     }
@@ -284,7 +289,7 @@ public class InstSelectorPP {
                 }
             } else if(inst instanceof Icmp){//TODO
                 Icmp it = (Icmp) inst;
-                //if(onlyForBr(it.rd, blk))continue;
+                if(onlyForBr(it.rd, blk))continue;
                 cmpType opCode = transOpCode(it.opCode);
                 //System.out.println(it.arg1);
                 if(opCode == cmpType.lt){
@@ -334,7 +339,7 @@ public class InstSelectorPP {
                 if(it.cond == null){//jp
                     curblk.addInst(new Jp(curblk, blkMap.get(it.iftrue)));
                 } else {//br
-                    /*if(it.cond instanceof Register && onlyForBr((Register) it.cond, blk)){
+                    if(it.cond instanceof Register && onlyForBr((Register) it.cond, blk) && okInsts.contains(it.cond)){
                         if(((Register) it.cond).defInst instanceof Icmp){
                             Icmp cmp = (Icmp) ((Register) it.cond).defInst;
                             if(cmp.opCode == Icmp.IcmpOpType.eq){
@@ -359,7 +364,7 @@ public class InstSelectorPP {
                             curblk.addInst(new Jp(curblk, blkMap.get(it.iffalse)));
                             continue;
                         }
-                    }*/
+                    }
                     curblk.addInst(new Bz(curblk, getAsmReg(it.cond), cmpType.eq, blkMap.get(it.iffalse)));
                     curblk.addInst(new Jp(curblk, blkMap.get(it.iftrue)));
                 }
