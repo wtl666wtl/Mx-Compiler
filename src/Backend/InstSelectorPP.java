@@ -296,7 +296,7 @@ public class InstSelectorPP {
                     curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg1), getAsmReg(it.arg2), calType.slt));
                     curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp, new Imm(1), calType.xor));
                 }else{
-                    VirtualReg tmp = new VirtualReg(vregCounter++, 4);
+                    /*VirtualReg tmp = new VirtualReg(vregCounter++, 4);
                     tmp.useTime++;
                     tmp.appearBlks.add(curblk);
                     curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg1), getAsmReg(it.arg2), calType.slt));
@@ -312,7 +312,12 @@ public class InstSelectorPP {
                         tmp3.appearBlks.add(curblk);
                         curblk.addInst(new RType(tmp3, curblk, tmp, tmp2, calType.or));
                         curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp3, new Imm(1), calType.xor));
-                    }
+                    }*/
+                    VirtualReg tmp = new VirtualReg(vregCounter++, 4);
+                    curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg1), getAsmReg(it.arg2), calType.xor));
+                    if(opCode == cmpType.ne)
+                        curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp, new Imm(0), calType.sne));
+                    else curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp, new Imm(0), calType.seq));
                 }
             } else if(inst instanceof MIR.IRinstruction.Br){
                 MIR.IRinstruction.Br it = (MIR.IRinstruction.Br)inst;
