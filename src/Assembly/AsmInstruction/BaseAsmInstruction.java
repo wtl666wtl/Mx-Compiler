@@ -10,7 +10,7 @@ import java.util.HashSet;
 public abstract class BaseAsmInstruction {
 
     public enum calType {
-        add, sub, slt, xor, or, and, sll, srl, sra, mul, div, rem
+        add, sub, slt, xor, or, and, sll, srl, sra, mul, div, rem, seq, sne
     }
     public enum cmpType {
         eq, ne, le, ge, lt, gt

@@ -24,6 +24,8 @@ public class IType extends BaseAsmInstruction{
 
     @Override
     public String toString(){
+        if(opCode == calType.seq || opCode == calType.sne)
+            return opCode + "z " + rd + ", " + rs;
         return opCode + "i " + rd + ", " + rs + ", " + imm.val;
     }
 
