@@ -289,7 +289,7 @@ public class InstSelectorPP {
                 }
             } else if(inst instanceof Icmp){//TODO
                 Icmp it = (Icmp) inst;
-                //if(blk.stmts.size()>=2 && onlyForBr(it.rd, blk) && inst == blk.stmts.get(blk.stmts.size()-2))continue;
+                if(blk.stmts.size()>=2 && onlyForBr(it.rd, blk) && inst == blk.stmts.get(blk.stmts.size()-2))continue;
                 cmpType opCode = transOpCode(it.opCode);
                 //System.out.println(it.arg1);
                 if(opCode == cmpType.lt){
