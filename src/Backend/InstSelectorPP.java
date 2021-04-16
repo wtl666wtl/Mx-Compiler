@@ -1,6 +1,7 @@
 package Backend;
 
 import Assembly.AsmInstruction.*;
+import Assembly.AsmInstruction.Br;
 import Assembly.AsmInstruction.Ret;
 import Assembly.AsmOperand.*;
 import Assembly.*;
@@ -71,6 +72,14 @@ public class InstSelectorPP {
             case sle: return cmpType.le;
             default: return null;
         }
+    }
+
+    public boolean onlyForBr(Register x, Block blk){
+        if(x.positions.size() == 1){
+            for(BaseInstruction inst : x.positions)
+                if(inst == blk.getTerminator())return true;
+        }
+        return false;
     }
 
     Reg getAsmReg(BaseOperand it){
@@ -275,6 +284,7 @@ public class InstSelectorPP {
                 }
             } else if(inst instanceof Icmp){//TODO
                 Icmp it = (Icmp) inst;
+                if(onlyForBr(it.rd, blk))continue;
                 cmpType opCode = transOpCode(it.opCode);
                 //System.out.println(it.arg1);
                 if(opCode == cmpType.lt){
@@ -324,6 +334,32 @@ public class InstSelectorPP {
                 if(it.cond == null){//jp
                     curblk.addInst(new Jp(curblk, blkMap.get(it.iftrue)));
                 } else {//br
+                    if(it.cond instanceof Register && onlyForBr((Register) it.cond, blk)){
+                        if(((Register) it.cond).defInst instanceof Icmp){
+                            Icmp cmp = (Icmp) ((Register) it.cond).defInst;
+                            if(cmp.opCode == Icmp.IcmpOpType.eq){
+                                curblk.addInst(new Br(curblk, getAsmReg(cmp.arg1), getAsmReg(cmp.arg2),
+                                        cmpType.eq, blkMap.get(it.iftrue)));
+                            } else if(cmp.opCode == Icmp.IcmpOpType.ne){
+                                curblk.addInst(new Br(curblk, getAsmReg(cmp.arg1), getAsmReg(cmp.arg2),
+                                        cmpType.ne, blkMap.get(it.iftrue)));
+                            } else if(cmp.opCode == Icmp.IcmpOpType.slt){
+                                curblk.addInst(new Br(curblk, getAsmReg(cmp.arg1), getAsmReg(cmp.arg2),
+                                        cmpType.lt, blkMap.get(it.iftrue)));
+                            } else if(cmp.opCode == Icmp.IcmpOpType.sle){
+                                curblk.addInst(new Br(curblk, getAsmReg(cmp.arg2), getAsmReg(cmp.arg1),
+                                        cmpType.ge, blkMap.get(it.iftrue)));
+                            } else if(cmp.opCode == Icmp.IcmpOpType.sgt){
+                                curblk.addInst(new Br(curblk, getAsmReg(cmp.arg2), getAsmReg(cmp.arg1),
+                                        cmpType.lt, blkMap.get(it.iftrue)));
+                            } else if(cmp.opCode == Icmp.IcmpOpType.sge){
+                                curblk.addInst(new Br(curblk, getAsmReg(cmp.arg1), getAsmReg(cmp.arg2),
+                                        cmpType.ge, blkMap.get(it.iftrue)));
+                            }
+                            curblk.addInst(new Jp(curblk, blkMap.get(it.iffalse)));
+                            continue;
+                        }
+                    }
                     curblk.addInst(new Bz(curblk, getAsmReg(it.cond), cmpType.eq, blkMap.get(it.iffalse)));
                     curblk.addInst(new Jp(curblk, blkMap.get(it.iftrue)));
                 }

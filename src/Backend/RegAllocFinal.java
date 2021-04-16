@@ -101,6 +101,7 @@ public class RegAllocFinal {
                 for(BaseAsmInstruction inst : preblk.stmts){
                     if(inst instanceof Jp && ((Jp)inst).destBlk == blk)((Jp)inst).destBlk = sucblk;
                     else if(inst instanceof Bz && ((Bz)inst).destblk == blk)((Bz)inst).destblk = sucblk;
+                    else if(inst instanceof Br && ((Br)inst).destblk == blk)((Br)inst).destblk = sucblk;
                 }
                 preblk.sucblks.remove(blk);
                 preblk.sucblks.add(sucblk);
