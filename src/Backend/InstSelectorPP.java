@@ -339,7 +339,7 @@ public class InstSelectorPP {
                 if(it.cond == null){//jp
                     curblk.addInst(new Jp(curblk, blkMap.get(it.iftrue)));
                 } else {//br
-                    if(it.cond instanceof Register && onlyForBr((Register) it.cond, blk) && okInsts.contains(it.cond)){
+                    if(blk.stmts.size() >=2 && it.cond instanceof Register && onlyForBr((Register) it.cond, blk) && okInsts.contains(it.cond)){
                         if(((Register) it.cond).defInst instanceof Icmp){
                             Icmp cmp = (Icmp) ((Register) it.cond).defInst;
                             if(cmp.opCode == Icmp.IcmpOpType.eq){
