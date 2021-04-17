@@ -289,26 +289,38 @@ public class InstSelectorPP {
                 }
             } else if(inst instanceof Icmp){//TODO
                 Icmp it = (Icmp) inst;
-                if(blk.stmts.size()>=2 && onlyForBr(it.rd, blk) && inst == blk.stmts.get(blk.stmts.size()-2))continue;
+                if(curFunc.name.equals("main") && blk.stmts.size()>=2 && onlyForBr(it.rd, blk) && inst == blk.stmts.get(blk.stmts.size()-2))continue;
                 cmpType opCode = transOpCode(it.opCode);
                 //System.out.println(it.arg1);
                 if(opCode == cmpType.lt){
-                    curblk.addInst(new RType(getAsmReg(it.rd), curblk,
+                    if(it.arg2 instanceof ConstInt && isSmall(((ConstInt)it.arg2).val))
+                        curblk.addInst(new IType(getAsmReg(it.rd), curblk,
+                                getAsmReg(it.arg1), new Imm(((ConstInt)it.arg2).val), calType.slt));
+                    else curblk.addInst(new RType(getAsmReg(it.rd), curblk,
                             getAsmReg(it.arg1), getAsmReg(it.arg2),calType.slt));
                 }else if(opCode == cmpType.gt){
-                    curblk.addInst(new RType(getAsmReg(it.rd), curblk,
+                    if(it.arg1 instanceof ConstInt && isSmall(((ConstInt)it.arg1).val))
+                        curblk.addInst(new IType(getAsmReg(it.rd), curblk,
+                                getAsmReg(it.arg2), new Imm(((ConstInt)it.arg1).val), calType.slt));
+                    else curblk.addInst(new RType(getAsmReg(it.rd), curblk,
                             getAsmReg(it.arg2), getAsmReg(it.arg1),calType.slt));
                 }else if(opCode == cmpType.le){
                     VirtualReg tmp = new VirtualReg(vregCounter++, 4);
                     tmp.useTime++;
                     tmp.appearBlks.add(curblk);
-                    curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg2), getAsmReg(it.arg1), calType.slt));
+                    if(it.arg1 instanceof ConstInt && isSmall(((ConstInt)it.arg1).val))
+                        curblk.addInst(new IType(tmp, curblk,
+                                getAsmReg(it.arg2), new Imm(((ConstInt)it.arg1).val), calType.slt));
+                    else curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg2), getAsmReg(it.arg1), calType.slt));
                     curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp, new Imm(1), calType.xor));
                 }else if(opCode == cmpType.ge){
                     VirtualReg tmp = new VirtualReg(vregCounter++, 4);
                     tmp.useTime++;
                     tmp.appearBlks.add(curblk);
-                    curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg1), getAsmReg(it.arg2), calType.slt));
+                    if(it.arg2 instanceof ConstInt && isSmall(((ConstInt)it.arg2).val))
+                        curblk.addInst(new IType(tmp, curblk,
+                                getAsmReg(it.arg1), new Imm(((ConstInt)it.arg2).val), calType.slt));
+                    else curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg1), getAsmReg(it.arg2), calType.slt));
                     curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp, new Imm(1), calType.xor));
                 }else{
                     /*VirtualReg tmp = new VirtualReg(vregCounter++, 4);
@@ -329,7 +341,12 @@ public class InstSelectorPP {
                         curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp3, new Imm(1), calType.xor));
                     }*/
                     VirtualReg tmp = new VirtualReg(vregCounter++, 4);
-                    curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg1), getAsmReg(it.arg2), calType.xor));
+                    if(isImm(it.arg2)){
+                        curblk.addInst(new IType(tmp, curblk, getAsmReg(it.arg1), new Imm(((ConstInt)it.arg2).val), calType.xor));
+                    } else if(isImm(it.arg1)){
+                        curblk.addInst(new IType(tmp, curblk, getAsmReg(it.arg2), new Imm(((ConstInt)it.arg1).val), calType.xor));
+                    } else
+                        curblk.addInst(new RType(tmp, curblk, getAsmReg(it.arg1), getAsmReg(it.arg2), calType.xor));
                     if(opCode == cmpType.ne)
                         curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp, new Imm(0), calType.sne));
                     else curblk.addInst(new IType(getAsmReg(it.rd), curblk, tmp, new Imm(0), calType.seq));
@@ -339,7 +356,7 @@ public class InstSelectorPP {
                 if(it.cond == null){//jp
                     curblk.addInst(new Jp(curblk, blkMap.get(it.iftrue)));
                 } else {//br
-                    if(it.cond instanceof Register && onlyForBr((Register) it.cond, blk)){
+                    if(curFunc.name.equals("main") && it.cond instanceof Register && okInsts.contains(it.cond) && onlyForBr((Register) it.cond, blk)){
                         if(((Register) it.cond).defInst instanceof Icmp){
                             Icmp cmp = (Icmp) ((Register) it.cond).defInst;
                             if(cmp.opCode == Icmp.IcmpOpType.eq){
