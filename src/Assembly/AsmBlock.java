@@ -17,9 +17,11 @@ public class AsmBlock {
     public LinkedList<SmartTag> freeList = new LinkedList<>();
     public HashSet<Reg> liveIn =new HashSet<>(), liveOut = new HashSet<>();
     public int blkCnt = 0;
+    public int loopLayers = 0;
 
-    public AsmBlock(String name, AsmRootNode AsmRt){
+    public AsmBlock(String name, AsmRootNode AsmRt, int loopLayers){
         this.name = name;
+        this.loopLayers = loopLayers;
         for(int i = 3; i < 10; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
         for(int i = 18; i < 28; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));
         for(int i = 29; i < 32; i++)freeList.add(new SmartTag(AsmRt.phyRegs.get(i), null));

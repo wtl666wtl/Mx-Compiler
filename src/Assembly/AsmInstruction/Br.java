@@ -11,7 +11,7 @@ public class Br extends BaseAsmInstruction{
     public cmpType opCode;
     public AsmBlock destblk;
 
-    public Br(AsmBlock blk, Reg rs1, Reg rs2, BaseAsmInstruction.cmpType opCode, AsmBlock destblk){
+    public Br(AsmBlock blk, Reg rs1, Reg rs2, cmpType opCode, AsmBlock destblk){
         super(null, blk);
         this.destblk = destblk;
         this.rs1 = rs1;
