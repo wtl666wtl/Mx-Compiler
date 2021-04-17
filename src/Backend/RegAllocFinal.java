@@ -86,7 +86,7 @@ public class RegAllocFinal {
 
         HashSet<AsmBlock> jmpOnlySet = new HashSet<>();
         AsmFunction func = curFunc;
-        /*func.blks.forEach(blk -> {
+        func.blks.forEach(blk -> {
             BaseAsmInstruction it = blk.stmts.getFirst();
             if(it instanceof Jp)jmpOnlySet.add(blk);
         });
@@ -111,7 +111,7 @@ public class RegAllocFinal {
             if(blk == func.inblk)
                 func.inblk = sucblk;
         });
-        func.blks.removeAll(jmpOnlySet);*/
+        func.blks.removeAll(jmpOnlySet);
     }
 
     public void clearAll(){
@@ -159,8 +159,8 @@ public class RegAllocFinal {
 
         curFunc.blks.forEach(blk -> {
             //for optimal? weight
-            //double weight = Math.pow(10, blk.loopDepth);
-            double weight = 1;
+            double weight = Math.pow(10, blk.loopLayers);
+            //double weight = 1;
             for(BaseAsmInstruction inst : blk.stmts){
                 inst.uses().forEach(reg -> reg.weight += weight);
                 if(inst.rd != null)

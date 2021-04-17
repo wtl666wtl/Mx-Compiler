@@ -124,7 +124,7 @@ public class InstSelector {
         rt.funcs.forEach((funcName, func) -> {
             //optimal? loop
             func.funcBlocks.forEach(blk -> {
-                AsmBlock Asmblk = new AsmBlock("." + funcName + "_" + blk.name, AsmRt);
+                AsmBlock Asmblk = new AsmBlock("." + funcName + "_" + blk.name, AsmRt, blk.loopLayers);
                 blkMap.put(blk, Asmblk);
             });
             AsmFunction AsmFunc = new AsmFunction(funcName, blkMap.get(func.inblk), blkMap.get(func.outblk));

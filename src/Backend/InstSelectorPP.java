@@ -40,6 +40,16 @@ public class InstSelectorPP {
         t5 = AsmRt.phyRegs.get(30);
     }
 
+    public int try2(int x){
+        int ans = 0;
+        while(x > 1 && x % 2 == 0){
+            x /= 2;
+            ans++;
+        }
+        if(x > 1)return -1;
+        return ans;
+    }
+
     public boolean isSmall(int x){
         return (x < (1<<11)) && (x > -1*(1<<11));
     }
@@ -167,7 +177,7 @@ public class InstSelectorPP {
         rt.funcs.forEach((funcName, func) -> {
             //optimal? loop
             func.funcBlocks.forEach(blk -> {
-                AsmBlock Asmblk = new AsmBlock("." + funcName + "_" + blk.name, AsmRt);
+                AsmBlock Asmblk = new AsmBlock("." + funcName + "_" + blk.name, AsmRt, blk.loopLayers);
                 blkMap.put(blk, Asmblk);
             });
             AsmFunction AsmFunc = new AsmFunction(funcName, blkMap.get(func.inblk), blkMap.get(func.outblk));
@@ -271,6 +281,16 @@ public class InstSelectorPP {
                 //System.out.println(it);
                 if(it.opCode == Binary.binaryOpType.mul || it.opCode == Binary.binaryOpType.sdiv
                     || it.opCode == Binary.binaryOpType.srem){
+                        if(it.opCode == Binary.binaryOpType.mul){
+                            int tmp;
+                            if(isImm(it.lhs) && (tmp = try2(((ConstInt)it.lhs).val)) != -1){
+                                curblk.addInst(new IType(getAsmReg(it.rd), curblk, getAsmReg(it.rhs), new Imm(tmp), calType.sll));
+                                continue;
+                            } else if(isImm(it.rhs) && (tmp = try2(((ConstInt)it.rhs).val)) != -1){
+                                curblk.addInst(new IType(getAsmReg(it.rd), curblk, getAsmReg(it.lhs), new Imm(tmp), calType.sll));
+                                continue;
+                            }
+                        }
                         curblk.addInst(new RType(getAsmReg(it.rd), curblk,
                                 getAsmReg(it.lhs), getAsmReg(it.rhs), transOpCode(it.opCode)));
                 }else {
@@ -444,7 +464,10 @@ public class InstSelectorPP {
                     tmp.useTime=2;
                     tmp.appearBlks.add(curblk);
                     tmp.usedTag = false;
-                    curblk.addInst(new RType(tmp, curblk, getAsmReg(it.stepNum),
+                    int tmpp;
+                    if((tmpp = try2(it.stepType.width / 8)) != -1)
+                        curblk.addInst(new IType(tmp, curblk, getAsmReg(it.stepNum), new Imm(tmpp), calType.sll));
+                    else curblk.addInst(new RType(tmp, curblk, getAsmReg(it.stepNum),
                             getAsmReg(new ConstInt(it.stepType.width / 8, 32)), calType.mul));
                     curblk.addInst(new RType(indexTmp, curblk, getAsmReg(it.target), tmp, calType.add));
                 }
