@@ -17,7 +17,7 @@ public class Inline {
     public boolean flag = false;
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
-    static public int addInstLimit = 4000;
+    static public int addInstLimit = 5000;
     static public int maxLimit = 80;
 
     public Inline(rootNode rt){
