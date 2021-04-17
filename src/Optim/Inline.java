@@ -17,7 +17,7 @@ public class Inline {
     public boolean flag = false;
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
-    static public int addInstLimit = 6000;
+    static public int addInstLimit = 2147483647;//no limit
     static public int maxLimit = 80;
 
     public Inline(rootNode rt){
@@ -54,6 +54,7 @@ public class Inline {
             change = true;
         }
         flag |= change;
+        System.out.println(addInstCnt);
     }
 
     public void inlineFunc(Call call, Function func){
