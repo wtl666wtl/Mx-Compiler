@@ -59,7 +59,7 @@ public class Main {
                 new IRBuilder(gScope, rt).visit(ASTRoot);
                 new Mem2Reg(rt).work();
                 
-                //new Optimization(rt).work();
+                new Optimization(rt).work();
                 
                 new SolvePhi(rt).run();
                 
