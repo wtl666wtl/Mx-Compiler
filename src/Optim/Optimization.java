@@ -40,9 +40,9 @@ public class Optimization {
             flag |= new ConstMerge(rt).work();
             if(judgeInst())flag |= new Inline(rt).work();
 
-            //flag |= new LICM(rt).work();
+            flag |= new LICM(rt).work();
 
-            //todo LICM for const-adv & loop-adv
+            //todo LICM for const-adv & loop-adv. After finish this, check RegAlloc!
             //todo loop?
         }
     }

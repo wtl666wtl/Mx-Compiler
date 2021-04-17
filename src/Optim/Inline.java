@@ -54,7 +54,7 @@ public class Inline {
             change = true;
         }
         flag |= change;
-        System.out.println(addInstCnt);
+        //System.out.println(addInstCnt);
     }
 
     public void inlineFunc(Call call, Function func){
