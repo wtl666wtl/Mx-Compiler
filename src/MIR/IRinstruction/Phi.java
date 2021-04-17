@@ -8,6 +8,7 @@ import MIR.IRoperand.Register;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Phi extends BaseInstruction{
@@ -76,4 +77,10 @@ public class Phi extends BaseInstruction{
         }
         newblk.addPhi(new Phi((Register) a.get(rd), newblk, newPhiInfo));
     }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        return new HashSet<>(myInfo.vals);
+    }
+
 }

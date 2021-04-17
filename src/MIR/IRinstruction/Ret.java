@@ -7,6 +7,7 @@ import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Ret extends BaseInstruction{
@@ -41,4 +42,12 @@ public class Ret extends BaseInstruction{
             newblk.addTerminator(new Ret(newblk, null));
         }else newblk.addTerminator(new Ret(newblk, a.get(retVal)));
     }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        if(retVal != null)use.add(retVal);
+        return use;
+    }
+
 }

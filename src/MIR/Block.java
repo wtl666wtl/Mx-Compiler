@@ -16,7 +16,7 @@ public class Block {
     public String name;
     public boolean isTerminated = false;
     public HashMap<Register, Phi> Phis = new HashMap<>();
-
+    public int loopLayers = 0;
     public Block iDom = null;
     public HashSet<Block> domFrontiers = new HashSet<>();
     //ListIterator<BaseInstruction>p = stmts.listIterator();
@@ -170,6 +170,15 @@ public class Block {
             addInst(inst);
             p.remove();
         }
+    }
+
+    public boolean tryDom(Block blk){
+        Block dom = iDom;
+        while(dom != null){
+            if(dom == blk)return true;
+            else dom = dom.iDom;
+        }
+        return false;
     }
 
 }

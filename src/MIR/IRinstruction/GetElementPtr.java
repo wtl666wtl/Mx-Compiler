@@ -9,6 +9,7 @@ import MIR.IRtype.IRBaseType;
 import MIR.IRtype.IRPointerType;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class GetElementPtr extends BaseInstruction{
@@ -57,4 +58,12 @@ public class GetElementPtr extends BaseInstruction{
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
         newblk.addInst(new GetElementPtr((Register) a.get(rd), newblk, stepType, a.get(target), a.get(stepNum), offset == null ? null : a.get(offset)));
     }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        use.add(target);use.add(stepNum);
+        return use;
+    }
+
 }

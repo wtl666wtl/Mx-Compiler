@@ -8,6 +8,7 @@ import MIR.IRoperand.Register;
 import MIR.IRtype.IRPointerType;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Load extends BaseInstruction{
@@ -44,4 +45,12 @@ public class Load extends BaseInstruction{
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
         newblk.addInst(new Load((Register) a.get(rd), newblk, a.get(addr)));
     }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        use.add(addr);
+        return use;
+    }
+
 }

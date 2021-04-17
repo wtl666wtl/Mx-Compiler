@@ -7,6 +7,7 @@ import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Icmp extends BaseInstruction{
@@ -50,6 +51,13 @@ public class Icmp extends BaseInstruction{
     @Override
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
         newblk.addInst(new Icmp((Register) a.get(rd), newblk, opCode, a.get(arg1), a.get(arg2)));
+    }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        use.add(arg1);use.add(arg2);
+        return use;
     }
 
 }

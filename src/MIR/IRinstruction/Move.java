@@ -9,6 +9,7 @@ import Util.error.internalError;
 import Util.position;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Move extends BaseInstruction{
@@ -40,6 +41,13 @@ public class Move extends BaseInstruction{
     @Override
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
         throw new internalError("inline a Mv inst", new position(0, 0));
+    }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        use.add(origin);
+        return use;
     }
 
 }

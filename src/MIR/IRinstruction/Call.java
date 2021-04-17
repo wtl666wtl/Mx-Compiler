@@ -8,6 +8,7 @@ import MIR.IRtype.IRFunctionType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Call extends BaseInstruction {
@@ -57,6 +58,11 @@ public class Call extends BaseInstruction {
         Call newCall = new Call(rd != null ? (Register) a.get(rd) : null, newblk, callee, newParams);
         if(loopCall && func.equals(callee))newCall.loopCall = true;
         newblk.addInst(newCall);
+    }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        return new HashSet<>(params);
     }
 
 }

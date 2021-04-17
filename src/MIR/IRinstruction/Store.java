@@ -7,6 +7,7 @@ import MIR.IRoperand.*;
 import MIR.IRtype.IRPointerType;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Store extends BaseInstruction{
@@ -47,6 +48,13 @@ public class Store extends BaseInstruction{
     @Override
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
         newblk.addInst(new Store(newblk, a.get(addr), a.get(storeVal)));
+    }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        use.add(storeVal);use.add(addr);
+        return use;
     }
 
 }

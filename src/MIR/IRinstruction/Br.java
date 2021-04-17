@@ -7,6 +7,7 @@ import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Br extends BaseInstruction{
@@ -45,6 +46,13 @@ public class Br extends BaseInstruction{
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
         if(cond == null)newblk.addTerminator(new Br(newblk, null, a.get(iftrue), null));
         else newblk.addTerminator(new Br(newblk, a.get(cond), a.get(iftrue), a.get(iffalse)));
+    }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        if(cond != null)use.add(cond);
+        return use;
     }
 
 }

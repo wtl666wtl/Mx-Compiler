@@ -7,6 +7,7 @@ import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Malloc extends BaseInstruction{
@@ -40,6 +41,13 @@ public class Malloc extends BaseInstruction{
     @Override
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
         newblk.addInst(new Malloc((Register) a.get(rd), newblk, a.get(length)));
+    }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        use.add(length);
+        return use;
     }
 
 }

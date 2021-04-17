@@ -7,6 +7,7 @@ import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Binary extends BaseInstruction {
@@ -53,4 +54,12 @@ public class Binary extends BaseInstruction {
     public void inlineCopy(Block newblk, Function func, inlineCorrespond a) {
         newblk.addInst(new Binary((Register) a.get(rd), newblk, opCode, a.get(lhs), a.get(rhs)));
     }
+
+    @Override
+    public HashSet<BaseOperand> uses() {
+        HashSet<BaseOperand> use = new HashSet<>();
+        use.add(lhs);use.add(rhs);
+        return use;
+    }
+
 }
