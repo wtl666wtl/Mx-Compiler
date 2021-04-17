@@ -16,8 +16,9 @@ public class Inline {
     public rootNode rt;
     public boolean flag = false;
     static public int inlineCnt = 0;
-    static public int limit = 10;
-    static public int maxLimit = 100;
+    static public int addInstCnt = 0;
+    static public int addInstLimit = 2000;
+    static public int maxLimit = 80;
 
     public Inline(rootNode rt){
         this.rt = rt;
@@ -41,7 +42,7 @@ public class Inline {
                 if(inst instanceof Call){
                     Call it = (Call) inst;
                     if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
-                            && (inlineCnt < maxLimit && goodFunc.contains(((Call) inst).callee)))
+                            && (inlineCnt < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
                         waitList.put(it, func);
                 }
             }
@@ -57,7 +58,7 @@ public class Inline {
 
     public void inlineFunc(Call call, Function func){
         ++inlineCnt;
-        if(inlineCnt > maxLimit)return;
+        if(inlineCnt > maxLimit || addInstCnt > addInstLimit)return;
         Function callee = call.callee;
         callee.appear.remove(call);
         //System.out.println("--");
@@ -80,6 +81,8 @@ public class Inline {
             Block newblk = correspondBlk.get(blk);
             blk.Phis.forEach((register, phi) -> phi.inlineCopy(newblk, func, correspond));
             blk.stmts.forEach(inst -> inst.inlineCopy(newblk, func, correspond));
+            addInstCnt += blk.Phis.size();
+            addInstCnt += blk.stmts.size();
             //blk.stmts.forEach(System.out::println);
             //System.out.println("------------------------------");
         });
