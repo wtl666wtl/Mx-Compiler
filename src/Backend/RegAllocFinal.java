@@ -522,17 +522,22 @@ public class RegAllocFinal {
 
     public HashMap<AsmBlock, HashSet<Reg> > blkUses = new HashMap<>(), blkDefs = new HashMap<>();
     public HashSet<AsmBlock> hasVisited = new HashSet<>();
+    public Queue<AsmBlock> Q = new LinkedList<>();
 
     public void collectorClear(){
         //blkDefs.clear();
         //blkUses.clear();
         hasVisited.clear();
+        Q.clear();
     }
 
     public void funcCollector(AsmFunction func){
         collectorClear();
         func.blks.forEach(this::blockCollector);
-        liveCollector(func.outblk);
+        Q.offer(func.outblk);
+        hasVisited.add(func.outblk);
+        while(!Q.isEmpty())
+            liveCollector(Q.poll());
     }
 
     public void blockCollector(AsmBlock blk){
@@ -560,12 +565,15 @@ public class RegAllocFinal {
         blk.liveOut.addAll(liveOut);
         liveIn.removeAll(blk.liveIn);
         if(!liveIn.isEmpty()){
+            //blk.liveIn.forEach(System.out::println);
             blk.liveIn.addAll(liveIn);
             blk.preblks.forEach(hasVisited::remove);
         }
         blk.preblks.forEach(preblk -> {
-            if(!hasVisited.contains(preblk))
-                liveCollector(preblk);
+            if(!hasVisited.contains(preblk)) {
+                Q.offer(preblk);
+                hasVisited.add(preblk);
+            }
         });
     }
 
