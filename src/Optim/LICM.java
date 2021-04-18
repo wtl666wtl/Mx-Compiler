@@ -4,6 +4,7 @@ import MIR.*;
 import MIR.IRinstruction.BaseInstruction;
 import MIR.IRinstruction.*;
 import MIR.IRoperand.BaseOperand;
+import MIR.IRoperand.GlobalVar;
 import MIR.IRoperand.Register;
 
 import java.util.HashSet;
@@ -23,10 +24,10 @@ public class LICM {
         if(inst instanceof Load){
             HashSet<BaseOperand> uses = inst.uses();
             uses.retainAll(loopDefs);
-            /*if(uses.isEmpty() && ){//todo alias
+            if(uses.isEmpty() && ((Load)inst).addr instanceof GlobalVar){
                 loopDefs.remove(inst.rd);
                 optimal.add(inst);
-            }*/
+            }
         } else if(!(inst instanceof Br || inst instanceof Call || inst instanceof Phi
                 || inst instanceof Store || inst instanceof Ret || inst instanceof Malloc)){
             HashSet<BaseOperand> uses = inst.uses();
@@ -49,7 +50,6 @@ public class LICM {
                 if(inst.rd != null)loopDefs.add(inst.rd);
             });
         });
-        //todo alias build Store
 
         Block preHead = loop.preHead;
         loop.loopBlocks.forEach(blk -> blk.stmts.forEach(inst -> tryAddPreHead(inst, loopDefs, optimal)));
