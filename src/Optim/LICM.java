@@ -15,6 +15,7 @@ public class LICM {
 
     public rootNode rt;
     public boolean flag = false;
+    public HashSet<BaseOperand> storeAddr = new HashSet<>();
 
     public LICM(rootNode rt){
         this.rt = rt;
@@ -24,7 +25,7 @@ public class LICM {
         if(inst instanceof Load){
             HashSet<BaseOperand> uses = inst.uses();
             uses.retainAll(loopDefs);
-            if(uses.isEmpty() && ((Load)inst).addr instanceof GlobalVar){
+            if(uses.isEmpty() && ((Load)inst).addr instanceof GlobalVar && !storeAddr.contains(((Load)inst).addr)){
                 loopDefs.remove(inst.rd);
                 optimal.add(inst);
             }
@@ -50,6 +51,11 @@ public class LICM {
                 if(inst.rd != null)loopDefs.add(inst.rd);
             });
         });
+
+        storeAddr.clear();
+        loop.loopBlocks.forEach(blk -> blk.stmts.forEach(inst -> {
+            if(inst instanceof Store)storeAddr.add(((Store)inst).addr);
+        }));
 
         Block preHead = loop.preHead;
         loop.loopBlocks.forEach(blk -> blk.stmts.forEach(inst -> tryAddPreHead(inst, loopDefs, optimal)));
