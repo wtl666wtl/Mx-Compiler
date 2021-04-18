@@ -50,4 +50,13 @@ public class Zext extends BaseInstruction{
         return use;
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        if(it instanceof Zext){
+            Zext i = (Zext) it;
+            return i.orign.equals(orign) && i.rd.type.isSame(rd.type);
+        }
+        return false;
+    }
+
 }

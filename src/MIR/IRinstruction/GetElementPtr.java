@@ -66,4 +66,13 @@ public class GetElementPtr extends BaseInstruction{
         return use;
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        if(it instanceof GetElementPtr){
+            GetElementPtr i = (GetElementPtr) it;
+            return i.target.equals(target) && i.stepNum.equals(stepNum) &&
+                    ((offset == null && i.offset == null) || (offset != null && i.offset.equals(offset)));
+        }
+        return false;
+    }
 }

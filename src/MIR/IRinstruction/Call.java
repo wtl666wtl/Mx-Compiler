@@ -65,4 +65,8 @@ public class Call extends BaseInstruction {
         return new HashSet<>(params);
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        return false;
+    }
 }

@@ -50,4 +50,8 @@ public class Ret extends BaseInstruction{
         return use;
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        return false;
+    }
 }

@@ -62,4 +62,18 @@ public class Binary extends BaseInstruction {
         return use;
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        if(it instanceof Binary){
+            Binary i = (Binary) it;
+            if(opCode == i.opCode){
+                if(opCode == binaryOpType.add || opCode == binaryOpType.mul || opCode == binaryOpType.and
+                        || opCode == binaryOpType.xor || opCode == binaryOpType.or)
+                    return (i.lhs.equals(lhs) && i.rhs.equals(rhs)) || (i.lhs.equals(rhs) && i.rhs.equals(lhs));
+                else return i.lhs.equals(lhs) && i.rhs.equals(rhs);
+            }
+        }
+        return false;
+    }
+
 }

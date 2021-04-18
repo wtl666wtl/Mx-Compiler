@@ -50,4 +50,8 @@ public class Move extends BaseInstruction{
         return use;
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        return it instanceof Move && ((Move)it).origin.equals(origin);
+    }
 }

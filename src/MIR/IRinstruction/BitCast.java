@@ -50,4 +50,13 @@ public class BitCast extends BaseInstruction{
         return use;
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        if(it instanceof BitCast){
+            BitCast i = (BitCast) it;
+            return i.origin.equals(origin) && i.rd.type.isSame(rd.type);
+        }
+        return false;
+    }
+
 }

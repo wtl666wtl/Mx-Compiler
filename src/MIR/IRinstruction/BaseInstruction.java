@@ -30,4 +30,6 @@ abstract public class BaseInstruction {
 
     public abstract HashSet<BaseOperand> uses();
 
+    public abstract boolean isSame(BaseInstruction it);
+
 }

@@ -83,4 +83,19 @@ public class Phi extends BaseInstruction{
         return new HashSet<>(myInfo.vals);
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        if(it instanceof Phi){
+            phiInfo i = ((Phi) it).myInfo;
+            HashSet<BaseOperand> valSet = new HashSet<>(i.vals);
+            if(i.vals.size() == myInfo.vals.size()){
+                for (int j = 0; j < myInfo.vals.size(); j++) {
+                    BaseOperand val = myInfo.vals.get(j);
+                    if(!valSet.contains(val) || myInfo.blks.get(j) != i.blks.get(i.vals.indexOf(val)))return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -55,4 +55,8 @@ public class Br extends BaseInstruction{
         return use;
     }
 
+    @Override
+    public boolean isSame(BaseInstruction it) {
+        return false;
+    }
 }
