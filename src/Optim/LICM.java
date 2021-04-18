@@ -64,6 +64,7 @@ public class LICM {
                     tryAddPreHead(pos, loopDefs, optimal);
             });
         }
+        //if(preHead.stmts.size()>100)System.out.println(preHead.stmts.size());
 
         loop.loopBlocks.forEach(blk -> blk.stmts.removeIf(inst -> inst.blk != blk));
     }

@@ -28,8 +28,7 @@ public class Optimization {
         }
         rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(blk -> inst += blk.stmts.size() + blk.Phis.size()));
         //System.out.println("inst = " + inst);
-        if(inst < instLimit)return true;
-        else return false;
+        return inst < instLimit;
     }
 
     public void work(){
@@ -38,12 +37,14 @@ public class Optimization {
             flag = new DCE(rt).work();
             flag |= new ConstEval(rt).work();
             flag |= new ConstMerge(rt).work();
-            if(judgeInst())flag |= new Inline(rt).work();
+            flag |= new CSE(rt).work();
+            if(judgeInst())flag = new Inline(rt).work();
 
-            flag |= new LICM(rt).work();
+            flag |= new LICM(rt).work();//judgeInst();
 
             //todo LICM for const-adv & loop-adv. After finish this, check RegAlloc!
             //todo loop?
         }
+        //System.out.println("YES");
     }
 }
