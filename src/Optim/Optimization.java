@@ -40,7 +40,7 @@ public class Optimization {
             flag |= new CSE(rt).work();
             if(judgeInst())flag = new Inline(rt).work();
 
-            flag |= new LICM(rt).work();//judgeInst();
+            flag |= new LICM(rt).work();
 
             //todo LICM for const-adv & loop-adv. After finish this, check RegAlloc!
             //todo loop?
