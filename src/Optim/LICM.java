@@ -48,6 +48,10 @@ public class LICM {
         }
     }
 
+    public boolean judge(Call inst){
+        return !rt.builtInFuncs.containsValue(inst.callee);
+    }
+
     public void workLoop(Loop loop){
         if(!loop.childLoops.isEmpty())
             loop.childLoops.forEach(this::workLoop);
@@ -64,7 +68,7 @@ public class LICM {
         hasCall = false;
         loop.loopBlocks.forEach(blk -> blk.stmts.forEach(inst -> {
             if(inst instanceof Store && ((Store)inst).addr instanceof GlobalVar)storeAddr.add((GlobalVar)((Store)inst).addr);
-            if(inst instanceof Call)hasCall = true;
+            if(inst instanceof Call && judge((Call) inst))hasCall = true;
         }));
 
         Block preHead = loop.preHead;

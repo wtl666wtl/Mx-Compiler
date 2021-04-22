@@ -23,6 +23,10 @@ public class MemCSE {
         return flag;
     }
 
+    public boolean judge(Call inst){
+        return !rt.builtInFuncs.containsValue(inst.callee);
+    }
+
     public void workBlock(Block blk) {
         rt.globalVars.forEach(globalVar -> {
             BaseOperand nowVal = null;
@@ -40,7 +44,7 @@ public class MemCSE {
                     storeReq = true;
                     p.remove();
                     inst.deleteSelf(false);
-                } else if(inst instanceof Call){
+                } else if(inst instanceof Call && judge((Call)inst)){
                     if(storeReq){
                         p.previous();
                         p.add(new Store(blk, globalVar, nowVal));
