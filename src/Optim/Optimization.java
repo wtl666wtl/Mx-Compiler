@@ -34,16 +34,14 @@ public class Optimization {
     public void work(){
         boolean flag = true;
         while(flag){
-            flag = new DCE(rt).work();
-            flag |= new ConstEval(rt).work();
-            flag |= new ConstMerge(rt).work();
+            flag = new DCE(rt).work();//adce
+            flag |= new ConstEval(rt).work();//const
+            flag |= new ConstMerge(rt).work();//inline-adv
             flag |= new CSE(rt).work();
-            if(judgeInst())flag = new Inline(rt).work();
+            flag |= new MemCSE(rt).work();
+            if(judgeInst())flag = new Inline(rt).work();//inline
 
-            flag |= new LICM(rt).work();
-
-            //todo LICM for const-adv & loop-adv. After finish this, check RegAlloc!
-            //todo loop?
+            flag |= new LICM(rt).work();//const-adv & loop-adv
         }
         //System.out.println("YES");
     }
