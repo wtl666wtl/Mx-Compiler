@@ -7,6 +7,7 @@ import MIR.IRoperand.BaseOperand;
 import MIR.rootNode;
 
 import java.util.ListIterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MemCSE {
 
@@ -38,23 +39,29 @@ public class MemCSE {
                     else {
                         p.set(new Zext(inst.rd, blk, nowVal));
                         inst.deleteSelf(false);
+                        flag = true;
                     }
                 } else if(inst instanceof Store && ((Store)inst).addr.equals(globalVar)){
                     nowVal = ((Store)inst).storeVal;
                     storeReq = true;
                     p.remove();
                     inst.deleteSelf(false);
+                    flag = true;
                 } else if(inst instanceof Call && judge((Call)inst)){
                     if(storeReq){
                         p.previous();
                         p.add(new Store(blk, globalVar, nowVal));
                         p.next();
                         storeReq = false;
+                        flag = true;
                     }
                     nowVal = null;
                 }
             }
-            if(storeReq) blk.addInstBeforeTerminator(new Store(blk, globalVar, nowVal));
+            if(storeReq){
+                blk.addInstBeforeTerminator(new Store(blk, globalVar, nowVal));
+                flag = true;
+            }
         });
     }
 
