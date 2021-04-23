@@ -23,6 +23,23 @@ public class CSE {
         return flag;
     }
 
+    public void workPre(Block blk, ArrayList<BaseInstruction> insts){
+        for(ListIterator<BaseInstruction> p = blk.stmts.listIterator(); p.hasNext();){
+            BaseInstruction inst = p.next();
+            if(!(inst instanceof Br || inst instanceof Call || inst instanceof Phi || inst instanceof Load
+                    || inst instanceof Store || inst instanceof Ret || inst instanceof Malloc)){
+                for(BaseInstruction it : insts){
+                    if(it.isSame(inst)){
+                        inst.rd.replaceAllUse(it.rd);
+                        p.remove();
+                        inst.deleteSelf(false);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     public void workBlock(Block blk){
         boolean change = true;
         while(change){
@@ -46,6 +63,7 @@ public class CSE {
                     else change = true;
                 }
             }
+            blk.sucblks.forEach(sucblk -> workPre(sucblk, insts));
             HashSet<Phi> phis = new HashSet<>();
             for(Iterator<Map.Entry<Register, Phi>> p = blk.Phis.entrySet().iterator(); p.hasNext();){
                 Map.Entry<Register, Phi> entry = p.next();
