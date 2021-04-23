@@ -38,9 +38,11 @@ public class Optimization {
             flag |= new ConstEval(rt).work();//const
             flag |= new ConstMerge(rt).work();//inline-adv
             flag |= new CSE(rt).work();
+
             if(judgeInst())flag = new Inline(rt).work();//inline
             flag |= new MemCSE(rt).work();
             flag |= new LICM(rt).work();//const-adv & loop-adv
+            //System.out.println("?");
         }
         //System.out.println("YES");
     }

@@ -24,8 +24,15 @@ public class CSE {
     }
 
     public void workPre(Block blk, ArrayList<BaseInstruction> insts){
+        int Limit = 5, req = 0, cnt = 0 , hit = 0;
         for(ListIterator<BaseInstruction> p = blk.stmts.listIterator(); p.hasNext();){
             BaseInstruction inst = p.next();
+            /*if(cnt == Limit)return;/*{
+                if(hit >= req)req++;
+                else return;
+                cnt = hit = 0;
+            }*/
+            cnt++;
             if(!(inst instanceof Br || inst instanceof Call || inst instanceof Phi || inst instanceof Load
                     || inst instanceof Store || inst instanceof Ret || inst instanceof Malloc)){
                 for(BaseInstruction it : insts){
@@ -33,6 +40,7 @@ public class CSE {
                         inst.rd.replaceAllUse(it.rd);
                         p.remove();
                         inst.deleteSelf(false);
+                        hit++;
                         break;
                     }
                 }
