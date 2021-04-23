@@ -23,7 +23,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
     }
     public Integer ConstVal(BaseOperand x){
         if(x instanceof ConstInt)return ((ConstInt)x).val;
-        else throw new internalError("Unexpected Operand in ConstEval", new position(0, 0));
+        else throw new internalError("Unexpected Operand in ConstMerge", new position(0, 0));
     }
 
     void workBlk(Block blk){

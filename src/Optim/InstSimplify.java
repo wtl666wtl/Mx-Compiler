@@ -37,7 +37,7 @@ public class InstSimplify {
         if(x instanceof ConstInt)return ((ConstInt)x).val;
         else if(x instanceof ConstBool)return ((ConstBool)x).val ? 1 : 0;
         else if(x instanceof ConstNull)return null;
-        else throw new internalError("Unexpected Operand in ConstEval", new position(0, 0));
+        else throw new internalError("Unexpected Operand in InstSimplify", new position(0, 0));
     }
 
     public int try2(int x){
@@ -68,9 +68,9 @@ public class InstSimplify {
                 } else if(it.opCode == Binary.binaryOpType.ashr){
                     if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 0)ans = it.lhs;
                 } else if(it.opCode == Binary.binaryOpType.mul){
-                    if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 1)ans = it.lhs;
+                    /*if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 1)ans = it.lhs;
                     else if(it.lhs instanceof ConstInt && ConstVal(it.lhs) == 1)ans = it.rhs;
-                    else if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 0)ans = new ConstInt(0, 32);
+                    else */if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 0)ans = new ConstInt(0, 32);
                     else if(it.lhs instanceof ConstInt && ConstVal(it.lhs) == 0)ans = new ConstInt(0, 32);
                     else {
                         int tmp;
@@ -97,7 +97,7 @@ public class InstSimplify {
                         it.arg1 = new ConstInt(ConstVal(it.arg1) - 1, 32);
                         it.opCode = Icmp.IcmpOpType.slt;
                     } else if(it.arg2 instanceof ConstInt){
-                        it.arg2 = new ConstInt(ConstVal(it.arg1) + 1, 32);
+                        it.arg2 = new ConstInt(ConstVal(it.arg2) + 1, 32);
                         it.opCode = Icmp.IcmpOpType.slt;
                     }
                 } else if(it.opCode == Icmp.IcmpOpType.sge){
