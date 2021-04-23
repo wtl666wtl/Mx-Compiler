@@ -46,7 +46,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b1.deleteSelf(false);
                         flag = true;
                     }
-                    if(b1.opCode == Binary.binaryOpType.mul && b2.opCode == Binary.binaryOpType.mul){
+                    /*else if(b1.opCode == Binary.binaryOpType.mul && b2.opCode == Binary.binaryOpType.mul){
                         b2.lhs.deleteAppear(b2);
                         b1.lhs.deleteAppear(b1);
                         b2.lhs = b1.lhs;
@@ -56,7 +56,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b1.deleteSelf(false);
                         flag = true;
                     }
-                    if(b1.opCode == Binary.binaryOpType.sub && b2.opCode == Binary.binaryOpType.sub){
+                    else if(b1.opCode == Binary.binaryOpType.sub && b2.opCode == Binary.binaryOpType.sub){
                         b2.lhs.deleteAppear(b2);
                         b1.lhs.deleteAppear(b1);
                         b2.lhs = b1.lhs;
@@ -66,7 +66,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b1.deleteSelf(false);
                         flag = true;
                     }
-                    if(b1.opCode == Binary.binaryOpType.add && b2.opCode == Binary.binaryOpType.sub){
+                    else if(b1.opCode == Binary.binaryOpType.add && b2.opCode == Binary.binaryOpType.sub){
                         b2.lhs.deleteAppear(b2);
                         b1.lhs.deleteAppear(b1);
                         b2.lhs = b1.lhs;
@@ -76,7 +76,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b1.deleteSelf(false);
                         flag = true;
                     }
-                    if(b1.opCode == Binary.binaryOpType.sub && b2.opCode == Binary.binaryOpType.add){
+                    else if(b1.opCode == Binary.binaryOpType.sub && b2.opCode == Binary.binaryOpType.add){
                         b2.lhs.deleteAppear(b2);
                         b1.lhs.deleteAppear(b1);
                         b2.lhs = b1.lhs;
@@ -86,7 +86,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b1.deleteSelf(false);
                         flag = true;
                     }
-                    if(b1.opCode == Binary.binaryOpType.shl && b2.opCode == Binary.binaryOpType.shl){
+                    else if(b1.opCode == Binary.binaryOpType.shl && b2.opCode == Binary.binaryOpType.shl){
                         b2.lhs.deleteAppear(b2);
                         b1.lhs.deleteAppear(b1);
                         b2.lhs = b1.lhs;
@@ -96,7 +96,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b1.deleteSelf(false);
                         flag = true;
                     }
-                    if(b1.opCode == Binary.binaryOpType.ashr && b2.opCode == Binary.binaryOpType.ashr){
+                    else if(b1.opCode == Binary.binaryOpType.ashr && b2.opCode == Binary.binaryOpType.ashr){
                         b2.lhs.deleteAppear(b2);
                         b1.lhs.deleteAppear(b1);
                         b2.lhs = b1.lhs;
@@ -105,7 +105,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         p.remove();
                         b1.deleteSelf(false);
                         flag = true;
-                    }
+                    }*/
                 }
             }
         }

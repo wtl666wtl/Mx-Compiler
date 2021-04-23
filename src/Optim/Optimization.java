@@ -38,7 +38,7 @@ public class Optimization {
             flag |= new ConstEval(rt).work();//const
             flag |= new ConstMerge(rt).work();//inline-adv
             flag |= new CSE(rt).work();
-            //flag |= new InstSimplify(rt).work();
+            flag |= new InstSimplify(rt).work();
 
             boolean ok = true;
             while(judgeInst() && ok)flag |= ok = new Inline(rt).work();//inline
