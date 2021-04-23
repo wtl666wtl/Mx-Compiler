@@ -27,7 +27,7 @@ public class CSE {
         int Limit = 5, req = 0, cnt = 0 , hit = 0;
         for(ListIterator<BaseInstruction> p = blk.stmts.listIterator(); p.hasNext();){
             BaseInstruction inst = p.next();
-            /*if(cnt == Limit)return;/*{
+            /*if(cnt == Limit){
                 if(hit >= req)req++;
                 else return;
                 cnt = hit = 0;
@@ -71,7 +71,9 @@ public class CSE {
                     else change = true;
                 }
             }
-            blk.sucblks.forEach(sucblk -> workPre(sucblk, insts));
+            blk.sucblks.forEach(sucblk -> {
+                if(sucblk.tryDom(blk))workPre(sucblk, insts);
+            });
             HashSet<Phi> phis = new HashSet<>();
             for(Iterator<Map.Entry<Register, Phi>> p = blk.Phis.entrySet().iterator(); p.hasNext();){
                 Map.Entry<Register, Phi> entry = p.next();
