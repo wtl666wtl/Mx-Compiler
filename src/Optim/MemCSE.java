@@ -1,6 +1,7 @@
 package Optim;
 
 import MIR.Block;
+import MIR.Function;
 import MIR.IRinstruction.BaseInstruction;
 import MIR.IRinstruction.*;
 import MIR.IRoperand.BaseOperand;
@@ -8,12 +9,12 @@ import MIR.IRoperand.GlobalVar;
 import MIR.rootNode;
 
 import java.util.ListIterator;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MemCSE {
 
     public rootNode rt;
     public boolean flag = false;
+    public Function curFunc = null;
 
     public MemCSE(rootNode rt){
         this.rt = rt;
@@ -21,16 +22,21 @@ public class MemCSE {
 
     public boolean work(){
         flag = false;
-        rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(this::workBlock));
+        rt.funcs.forEach((s, func) -> {
+            curFunc = func;
+            func.funcBlocks.forEach(this::workBlock);
+        });
         return flag;
     }
 
     public boolean judge(Call inst, GlobalVar globalVar){
         if(rt.builtInFuncs.containsValue(inst.callee))return false;
         else{
+            if(curFunc == inst.callee)return true;
             for(Block blk : inst.callee.funcBlocks)
                 for(BaseInstruction it : blk.stmts){
                     if(it instanceof Store && ((Store)it).addr == globalVar)return true;
+                    if(it instanceof Call)return true;
                 }
             return false;
             //return true;
