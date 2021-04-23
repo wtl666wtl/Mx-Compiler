@@ -26,13 +26,14 @@ public class MemCSE {
     }
 
     public boolean judge(Call inst, GlobalVar globalVar){
-        if(rt.builtInFuncs.containsValue(inst.callee))return true;
+        if(rt.builtInFuncs.containsValue(inst.callee))return false;
         else{
             for(Block blk : inst.callee.funcBlocks)
                 for(BaseInstruction it : blk.stmts){
-                    if(it instanceof Store && ((Store)it).addr == globalVar)return false;
+                    if(it instanceof Store && ((Store)it).addr == globalVar)return true;
                 }
-            return true;
+            return false;
+            //return true;
         }
     }
 
