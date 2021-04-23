@@ -32,8 +32,8 @@ public class LICM {
         if(inst instanceof Load){
             HashSet<BaseOperand> uses = inst.uses();
             uses.retainAll(loopDefs);
-            if(uses.isEmpty() && ((Load)inst).addr instanceof GlobalVar && !hasCall &&
-                    simpleVar((GlobalVar) ((Load)inst).addr) && !storeAddr.contains((GlobalVar)((Load)inst).addr)){
+            if(uses.isEmpty() && ((Load)inst).addr instanceof GlobalVar &&
+                    !hasCall && !storeAddr.contains((GlobalVar)((Load)inst).addr)){
                 loopDefs.remove(inst.rd);
                 optimal.add(inst);
             }

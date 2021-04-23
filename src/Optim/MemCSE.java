@@ -4,6 +4,7 @@ import MIR.Block;
 import MIR.IRinstruction.BaseInstruction;
 import MIR.IRinstruction.*;
 import MIR.IRoperand.BaseOperand;
+import MIR.IRoperand.GlobalVar;
 import MIR.rootNode;
 
 import java.util.ListIterator;
@@ -24,8 +25,15 @@ public class MemCSE {
         return flag;
     }
 
-    public boolean judge(Call inst){
-        return !rt.builtInFuncs.containsValue(inst.callee);
+    public boolean judge(Call inst, GlobalVar globalVar){
+        if(rt.builtInFuncs.containsValue(inst.callee))return true;
+        else{
+            for(Block blk : inst.callee.funcBlocks)
+                for(BaseInstruction it : blk.stmts){
+                    if(it instanceof Store && ((Store)it).addr == globalVar)return false;
+                }
+            return true;
+        }
     }
 
     public void workBlock(Block blk) {
@@ -47,7 +55,7 @@ public class MemCSE {
                     p.remove();
                     inst.deleteSelf(false);
                     flag = true;
-                } else if(inst instanceof Call && judge((Call)inst)){
+                } else if(inst instanceof Call && judge((Call)inst, globalVar)){
                     if(storeReq){
                         p.previous();
                         p.add(new Store(blk, globalVar, nowVal));
