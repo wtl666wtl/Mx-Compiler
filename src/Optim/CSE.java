@@ -2,6 +2,7 @@ package Optim;
 
 import Assembly.AsmOperand.Reg;
 import MIR.Block;
+import MIR.Function;
 import MIR.IRinstruction.*;
 import MIR.IRoperand.Register;
 import MIR.rootNode;
@@ -12,6 +13,7 @@ public class CSE {
 
     public rootNode rt;
     public boolean flag = false;
+    public Function curFunc = null;
 
     public CSE(rootNode rt){
         this.rt = rt;
@@ -19,7 +21,10 @@ public class CSE {
 
     public boolean work(){
         flag = false;
-        rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(this::workBlock));
+        rt.funcs.forEach((s, func) -> {
+            curFunc = func;
+            func.funcBlocks.forEach(this::workBlock);
+        });
         return flag;
     }
 
@@ -71,9 +76,10 @@ public class CSE {
                     else change = true;
                 }
             }
-            blk.sucblks.forEach(sucblk -> {
-                if(sucblk.tryDom(blk))workPre(sucblk, insts);
+            curFunc.funcBlocks.forEach(fblk -> {
+                if(fblk.tryDom(blk))workPre(fblk, insts);
             });
+            //blk.sucblks.forEach(sucblk -> if(fblk.tryDom(blk))workPre(sucblk, insts));
             HashSet<Phi> phis = new HashSet<>();
             for(Iterator<Map.Entry<Register, Phi>> p = blk.Phis.entrySet().iterator(); p.hasNext();){
                 Map.Entry<Register, Phi> entry = p.next();
