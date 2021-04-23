@@ -10,7 +10,7 @@ public class Optimization {
     public rootNode rt;
     public static int LastInst = 0;
     public static int inst = 2147483647;
-    public static int instLimit = 9500;
+    public static int instLimit = 9000;
 
     public Optimization(rootNode rt){
         this.rt = rt;
@@ -38,7 +38,7 @@ public class Optimization {
             flag |= new ConstEval(rt).work();//const
             flag |= new ConstMerge(rt).work();//inline-adv
             flag |= new CSE(rt).work();
-            flag |= new InstSimplify(rt).work();
+            //flag |= new InstSimplify(rt).work();
 
             boolean ok = true;
             while(judgeInst() && ok)flag |= ok = new Inline(rt).work();//inline
