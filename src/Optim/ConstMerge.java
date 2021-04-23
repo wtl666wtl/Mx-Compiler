@@ -44,6 +44,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
+                        flag = true;
                     }
                 }
             }
