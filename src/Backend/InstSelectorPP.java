@@ -291,6 +291,13 @@ public class InstSelectorPP {
                                 continue;
                             }
                         }
+                    if(it.opCode == Binary.binaryOpType.sdiv){
+                        int tmp;
+                        if(isImm(it.rhs) && (tmp = try2(((ConstInt)it.rhs).val)) != -1){
+                            curblk.addInst(new IType(getAsmReg(it.rd), curblk, getAsmReg(it.lhs), new Imm(tmp), calType.srl));
+                            continue;
+                        }
+                    }
                         curblk.addInst(new RType(getAsmReg(it.rd), curblk,
                                 getAsmReg(it.lhs), getAsmReg(it.rhs), transOpCode(it.opCode)));
                 }else {
