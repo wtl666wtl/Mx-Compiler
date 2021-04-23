@@ -10,7 +10,7 @@ public class Optimization {
     public rootNode rt;
     public static int LastInst = 0;
     public static int inst = 2147483647;
-    public static int instLimit = 10000;
+    public static int instLimit = 9500;
 
     public Optimization(rootNode rt){
         this.rt = rt;

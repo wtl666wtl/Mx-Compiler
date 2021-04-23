@@ -18,7 +18,7 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 120;//may 80 is better?
+    static public int maxLimit = 110;//may 80 is better?
 
     public Inline(rootNode rt){
         this.rt = rt;
