@@ -463,7 +463,10 @@ public class InstSelectorPP {
                             curblk.addInst(new Mv(indexTmp, curblk, target));
                         }
                     }else{
-                        curblk.addInst(new RType(indexTmp, curblk, getAsmReg(it.target),
+                        if(isImm(new ConstInt(stepNum.val * it.stepType.width / 8, 32)))
+                            curblk.addInst(new IType(indexTmp, curblk, getAsmReg(it.target),
+                                    new Imm(stepNum.val * it.stepType.width / 8), calType.add));
+                        else curblk.addInst(new RType(indexTmp, curblk, getAsmReg(it.target),
                                 getAsmReg(new ConstInt(stepNum.val * it.stepType.width / 8, 32)), calType.add));
                     }
                 } else {
