@@ -4,6 +4,7 @@ import MIR.IRinstruction.*;
 
 import java.util.*;
 
+import MIR.IRoperand.BaseOperand;
 import MIR.IRoperand.Register;
 import Util.error.internalError;
 import Util.position;
@@ -19,9 +20,14 @@ public class Block {
     public int loopLayers = 0;
     public Block iDom = null;
     public HashSet<Block> domFrontiers = new HashSet<>();
+    public BaseOperand nowVal = null;
     //ListIterator<BaseInstruction>p = stmts.listIterator();
     public Block(String name) {
         this.name = name;
+    }
+
+    public void clearMemCSE(){
+        nowVal = null;
     }
 
     public void deleteInst(BaseInstruction inst){
