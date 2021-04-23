@@ -79,7 +79,9 @@ public class CSE {
             curFunc.funcBlocks.forEach(fblk -> {
                 if(fblk.tryDom(blk))workPre(fblk, insts);
             });
-            //blk.sucblks.forEach(sucblk -> if(fblk.tryDom(blk))workPre(sucblk, insts));
+            /*blk.sucblks.forEach(sucblk -> {
+                if (sucblk.tryDom(blk)) workPre(sucblk, insts);
+            });*/
             HashSet<Phi> phis = new HashSet<>();
             for(Iterator<Map.Entry<Register, Phi>> p = blk.Phis.entrySet().iterator(); p.hasNext();){
                 Map.Entry<Register, Phi> entry = p.next();

@@ -40,6 +40,7 @@ public class Optimization {
             flag |= new CSE(rt).work();
             boolean ok = true;
             while(judgeInst() && ok)flag |= ok = new Inline(rt).work();//inline
+
             flag |= new MemCSE(rt).work();
             flag |= new LICM(rt).work();//const-adv & loop-adv
             //System.out.println("?");

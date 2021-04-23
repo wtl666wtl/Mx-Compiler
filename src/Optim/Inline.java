@@ -47,6 +47,18 @@ public class Inline {
                 }
             }
         }));
+        if(waitList.isEmpty()){
+            rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(blk -> {
+                for(BaseInstruction inst : blk.stmts){
+                    if(inst instanceof Call){
+                        Call it = (Call) inst;
+                        if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
+                                && (inlineCnt < maxLimit && addInstCnt < addInstLimit))
+                            waitList.put(it, func);
+                    }
+                }
+            }));
+        }
         for(Map.Entry<Call, Function> entry : waitList.entrySet()){
             Call call = entry.getKey();
             Function func = entry.getValue();
