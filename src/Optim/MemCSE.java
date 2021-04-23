@@ -36,6 +36,7 @@ public class MemCSE {
             for(Block blk : inst.callee.funcBlocks)
                 for(BaseInstruction it : blk.stmts){
                     if(it instanceof Store && ((Store)it).addr == globalVar)return true;
+                    if(it instanceof Load && ((Load)it).addr == globalVar)return true;
                     if(it instanceof Call)return true;
                 }
             return false;
