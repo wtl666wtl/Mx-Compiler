@@ -22,9 +22,12 @@ public class MemCSE {
 
     public boolean work(){
         flag = false;
-        rt.funcs.forEach((s, func) -> {
-            curFunc = func;
-            func.funcBlocks.forEach(this::workBlock);
+        rt.globalVars.forEach(globalVar -> {
+            rt.funcs.forEach((s, func) -> {
+                curFunc = func;
+                func.funcBlocks.forEach(Block::clearMemCSE);
+                func.funcBlocks.forEach(blk -> workBlock(blk, globalVar));
+            });
         });
         return flag;
     }
@@ -44,41 +47,43 @@ public class MemCSE {
         }
     }
 
-    public void workBlock(Block blk) {
-        rt.globalVars.forEach(globalVar -> {
-            BaseOperand nowVal = null;
-            boolean storeReq = false;
-            for(ListIterator<BaseInstruction> p = blk.stmts.listIterator(); p.hasNext();){
-                BaseInstruction inst = p.next();
-                if(inst instanceof Load && ((Load)inst).addr.equals(globalVar)){
-                    if(nowVal == null)nowVal = inst.rd;
-                    else {
-                        p.set(new Zext(inst.rd, blk, nowVal));
-                        inst.deleteSelf(false);
-                        flag = true;
-                    }
-                } else if(inst instanceof Store && ((Store)inst).addr.equals(globalVar)){
-                    nowVal = ((Store)inst).storeVal;
-                    storeReq = true;
-                    p.remove();
+    public void workBlock(Block blk, GlobalVar globalVar) {
+        BaseOperand nowVal = blk.nowVal;
+        boolean storeReq = false;
+        for(ListIterator<BaseInstruction> p = blk.stmts.listIterator(); p.hasNext();){
+            BaseInstruction inst = p.next();
+            if(inst instanceof Load && ((Load)inst).addr.equals(globalVar)){
+                if(nowVal == null)nowVal = inst.rd;
+                else {
+                    p.set(new Zext(inst.rd, blk, nowVal));
                     inst.deleteSelf(false);
                     flag = true;
-                } else if(inst instanceof Call && judge((Call)inst, globalVar)){
-                    if(storeReq){
-                        p.previous();
-                        p.add(new Store(blk, globalVar, nowVal));
-                        p.next();
-                        storeReq = false;
-                        flag = true;
-                    }
-                    nowVal = null;
                 }
-            }
-            if(storeReq){
-                blk.addInstBeforeTerminator(new Store(blk, globalVar, nowVal));
+            } else if(inst instanceof Store && ((Store)inst).addr.equals(globalVar)){
+                nowVal = ((Store)inst).storeVal;
+                storeReq = true;
+                p.remove();
+                inst.deleteSelf(false);
                 flag = true;
+            } else if(inst instanceof Call && judge((Call)inst, globalVar)){
+                if(storeReq){
+                    p.previous();
+                    p.add(new Store(blk, globalVar, nowVal));
+                    p.next();
+                    storeReq = false;
+                    flag = true;
+                }
+                nowVal = null;
             }
-        });
+        }
+        if(storeReq){
+            blk.addInstBeforeTerminator(new Store(blk, globalVar, nowVal));
+            flag = true;
+        }
+        if(nowVal != null){
+            if(blk.sucblks.size() == 1 && blk.sucblks.get(0).preblks.size() == 1)
+                blk.sucblks.get(0).nowVal = nowVal;
+        }
     }
 
 }
