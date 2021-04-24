@@ -18,8 +18,11 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 120;
+    static public int maxLimit = 200;
     static public int oneLimit = 200;
+    public HashSet<Function> badFuncs = new HashSet<>();
+    public HashSet<Function> hasVisited = new HashSet<>();
+    public Stack<Function> stack = new Stack<>();
 
     public Inline(rootNode rt){
         this.rt = rt;
@@ -30,6 +33,23 @@ public class Inline {
         for(Block blk : x.funcBlocks)
             res += blk.stmts.size();
         return res;
+    }
+
+    void DFS(Function func){
+        hasVisited.add(func);
+        stack.push(func);
+        boolean ring = false;
+        for(Function sfunc : stack){
+            if (func.callFuncs.contains(sfunc)) {
+                ring = true;
+                break;
+            }
+        }
+        if(ring)badFuncs.add(func);
+        func.callFuncs.forEach(callFunc -> {
+            if(!hasVisited.contains(callFunc))DFS(callFunc);
+        });
+        stack.pop();
     }
 
     void tryInline(){
@@ -56,11 +76,23 @@ public class Inline {
             }
         }));
         if(waitList.isEmpty()){
+            maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
+            badFuncs.clear();
+            hasVisited.clear();
+            stack.clear();
+            hasVisited.addAll(rt.builtInFuncs.values());
+            badFuncs.addAll(rt.builtInFuncs.values());
+            badFuncs.add(rt.funcs.get("main"));
+
+            rt.funcs.forEach((s, func) -> {
+                if(!hasVisited.contains(func))DFS(func);
+            });
+
             rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(blk -> {
                 for(BaseInstruction inst : blk.stmts){
                     if(inst instanceof Call){
                         Call it = (Call) inst;
-                        if(!rt.builtInFuncs.containsKey(it.callee.name)
+                        if(!rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
                                 && (inlineCnt < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
                             waitList.put(it, func);
                     }
@@ -132,24 +164,6 @@ public class Inline {
 
         if(func.outblk.equals(curblk) && newIn != newOut) func.outblk = newOut;
         LinkedHashSet<Block> newBlocks = new LinkedHashSet<>();
-        //func.funcBlocks.clear();
-        /*for(Block blk : func.funcBlocks){
-            if(blk != curblk)newBlocks.add(blk);
-            else{
-                newBlocks.add(blk);
-                //for(BaseInstruction inst : blk.stmts)System.out.println(inst);
-                callee.funcBlocks.forEach(inlinedBlk -> {
-                    Block addBlk = correspondBlk.get(inlinedBlk);
-                    //System.out.println("F@Q");
-                    if(addBlk != newIn){
-                        newBlocks.add(addBlk);
-                        //for(BaseInstruction inst : addBlk.stmts)System.out.println(inst);
-                        //System.out.println("F@Q");
-                    }
-                });
-            }
-        }*/
-        //System.out.println(curblk.sucblks.size());
         func.funcBlocks = FuncBlockCollector.work(func.inblk);
         func.callFuncs.clear();
         func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
@@ -165,17 +179,6 @@ public class Inline {
         flag = false;
         int cnt = 0;
         tryInline();
-        //rt.funcs.forEach((s, func) -> new DomGen(func).workFunc());
-        /*rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(blk -> {
-            System.out.println("=====================");
-            System.out.println(blk.name);
-            System.out.println("#===================#");
-            blk.preblks.forEach(blk1 -> System.out.println(blk1.name));
-            System.out.println("#===================#");
-            blk.sucblks.forEach(blk2 -> System.out.println(blk2.name));
-        }));
-        System.out.println("===END===");*/
-        //limit = Math.min(limit * 2, 32);
         return flag;
     }
 
