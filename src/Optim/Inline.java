@@ -18,7 +18,7 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 120;
+    static public int maxLimit = 150;
     static public int oneLimit = 200;
     public HashSet<Function> badFuncs = new HashSet<>();
     public HashSet<Function> hasVisited = new HashSet<>();
@@ -73,6 +73,7 @@ public class Inline {
                     Call it = (Call) inst;
                     if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
                             //&& it.callee.outblk.getTerminator() instanceof Ret
+                            && it.callee.funcBlocks.size() < 50
                             && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
                         waitList.put(it, func);
                 }
@@ -97,6 +98,7 @@ public class Inline {
                         Call it = (Call) inst;
                         if(it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
                                 //&& it.callee.outblk.getTerminator() instanceof Ret
+                                && it.callee.funcBlocks.size() < 50
                                 && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
                             waitList.put(it, func);
                     }
