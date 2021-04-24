@@ -19,9 +19,17 @@ public class Inline {
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
     static public int maxLimit = 120;
+    static public int oneLimit = 400;
 
     public Inline(rootNode rt){
         this.rt = rt;
+    }
+
+    public int countInst(Function x){
+        int res = 0;
+        for(Block blk : x.funcBlocks)
+            res += blk.stmts.size();
+        return res;
     }
 
     void tryInline(){
@@ -42,7 +50,8 @@ public class Inline {
                 if(inst instanceof Call){
                     Call it = (Call) inst;
                     if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
-                            && (inlineCnt < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
+                            && (inlineCnt < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee))
+                            && countInst(it.callee) < oneLimit)
                         waitList.put(it, func);
                 }
             }
@@ -53,7 +62,7 @@ public class Inline {
                     if(inst instanceof Call){
                         Call it = (Call) inst;
                         if(!rt.builtInFuncs.containsKey(it.callee.name)
-                                && (inlineCnt < maxLimit && addInstCnt < addInstLimit))
+                                && (inlineCnt < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
                             waitList.put(it, func);
                     }
                 }
