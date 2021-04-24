@@ -93,23 +93,30 @@ public class RegAllocFinal {
 
         jmpOnlySet.forEach(blk -> {
             AsmBlock sucblk = blk;
+            boolean dangerous = false;
             while (jmpOnlySet.contains(sucblk)) {
                 sucblk = ((Jp)sucblk.stmts.getFirst()).destBlk;
-            }
-            HashSet<AsmBlock> preblks = new HashSet<>(blk.preblks);
-            for (AsmBlock preblk : preblks) {
-                for(BaseAsmInstruction inst : preblk.stmts){
-                    if(inst instanceof Jp && ((Jp)inst).destBlk == blk)((Jp)inst).destBlk = sucblk;
-                    else if(inst instanceof Bz && ((Bz)inst).destblk == blk)((Bz)inst).destblk = sucblk;
-                    else if(inst instanceof Br && ((Br)inst).destblk == blk)((Br)inst).destblk = sucblk;
+                if(sucblk == blk){
+                    dangerous = true;
+                    break;
                 }
-                preblk.sucblks.remove(blk);
-                preblk.sucblks.add(sucblk);
             }
-            sucblk.preblks.remove(blk);
-            sucblk.sucblks.addAll(blk.preblks);
-            if(blk == func.inblk)
-                func.inblk = sucblk;
+            if(!dangerous) {
+                HashSet<AsmBlock> preblks = new HashSet<>(blk.preblks);
+                for (AsmBlock preblk : preblks) {
+                    for (BaseAsmInstruction inst : preblk.stmts) {
+                        if (inst instanceof Jp && ((Jp) inst).destBlk == blk) ((Jp) inst).destBlk = sucblk;
+                        else if (inst instanceof Bz && ((Bz) inst).destblk == blk) ((Bz) inst).destblk = sucblk;
+                        else if (inst instanceof Br && ((Br) inst).destblk == blk) ((Br) inst).destblk = sucblk;
+                    }
+                    preblk.sucblks.remove(blk);
+                    preblk.sucblks.add(sucblk);
+                }
+                sucblk.preblks.remove(blk);
+                sucblk.sucblks.addAll(blk.preblks);
+                if (blk == func.inblk)
+                    func.inblk = sucblk;
+            } else jmpOnlySet.remove(blk);
         });
         func.blks.removeAll(jmpOnlySet);
     }

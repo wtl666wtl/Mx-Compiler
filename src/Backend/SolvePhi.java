@@ -62,7 +62,9 @@ public class SolvePhi {
                 blkPhis.get(preBlk).addMove(new Move(reg, preBlk, val, false));
             }
         }));
+        //System.out.println(func.name);
         blkPhis.forEach(this::solveBlkPhi);
+        //System.out.println(func.name);
 
         //compress jump-only blks
 
@@ -83,16 +85,24 @@ public class SolvePhi {
 
         jmpOnlySet.forEach(blk -> {
             Block sucblk = blk;
+            boolean dangerous = false;
             while (jmpOnlySet.contains(sucblk)) {
                 sucblk = ((Br) sucblk.getTerminator()).iftrue;
+                if(sucblk == blk){
+                    dangerous = true;
+                    break;
+                }
+                //System.out.println("?");
             }
-            //System.out.println(blk.preblks.size());
-            HashSet<Block> preblks = new HashSet<>(blk.preblks);
-            for (Block preblk : preblks) {
-                preblk.changeSucblk(blk, sucblk);
-            }
-            if(blk == func.inblk)
-                func.inblk = sucblk;
+            if(!dangerous) {
+                //System.out.println(blk.preblks.size());
+                HashSet<Block> preblks = new HashSet<>(blk.preblks);
+                for (Block preblk : preblks) {
+                    preblk.changeSucblk(blk, sucblk);
+                }
+                if (blk == func.inblk)
+                    func.inblk = sucblk;
+            } else jmpOnlySet.remove(blk);
         });
         func.funcBlocks.removeAll(jmpOnlySet);
 
@@ -103,7 +113,7 @@ public class SolvePhi {
             //func.funcBlocks.add(func.inblk);
             func.funcBlocks = FuncBlockCollector.work(func.inblk);
         }*/
-
+        //System.out.println(func.name);
     }
 
     public void solveBlkPhi(Block blk, phiToMove para){
