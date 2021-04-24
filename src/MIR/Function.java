@@ -8,6 +8,7 @@ import MIR.IRtype.IRFunctionType;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 
 public class Function {
 
@@ -15,7 +16,8 @@ public class Function {
     public IRFunctionType funType;
     public Parameter classPtr;
     public HashSet<Function> callFuncs = new HashSet<>();
-    public HashSet<Register> varPtrs =new HashSet<>();
+    public LinkedHashSet<Register> varPtrs =new LinkedHashSet<>();
+    public LinkedList<Register> ParamPtrs =new LinkedList<>();
     public Block inblk, outblk;
     public LinkedHashSet<Block> funcBlocks = new LinkedHashSet<>();
     public HashSet<Call> appear = new HashSet<>();
