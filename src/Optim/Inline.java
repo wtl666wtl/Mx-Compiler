@@ -78,7 +78,7 @@ public class Inline {
             }
         }));
         if(waitList.isEmpty() && force){
-            maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
+            //maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
             badFuncs.clear();
             hasVisited.clear();
             stack.clear();
