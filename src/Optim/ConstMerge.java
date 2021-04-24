@@ -54,7 +54,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) * ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        flag = true;
+                        //flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.sub && b2.opCode == Binary.binaryOpType.sub){
                         b2.lhs.deleteAppear(b2);
@@ -62,9 +62,10 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.lhs = b1.lhs;
                         b2.lhs.appear(b2);
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
+                        System.out.println(b2);
                         p.remove();
                         b1.deleteSelf(false);
-                        flag = true;
+                        //flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.add && b2.opCode == Binary.binaryOpType.sub){
                         b2.lhs.deleteAppear(b2);
@@ -74,7 +75,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(-ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        flag = true;
+                        //flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.sub && b2.opCode == Binary.binaryOpType.add){
                         b2.lhs.deleteAppear(b2);
@@ -84,7 +85,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(-ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        flag = true;
+                        //flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.shl && b2.opCode == Binary.binaryOpType.shl){
                         b2.lhs.deleteAppear(b2);
@@ -94,7 +95,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        flag = true;
+                        //flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.ashr && b2.opCode == Binary.binaryOpType.ashr){
                         b2.lhs.deleteAppear(b2);
@@ -104,7 +105,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        flag = true;
+                        //flag = true;
                     }*/
                 }
             }

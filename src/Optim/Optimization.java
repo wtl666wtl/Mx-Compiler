@@ -44,9 +44,11 @@ public class Optimization {
             while(judgeInst() && ok)flag |= ok = new Inline(rt).work();//inline
 
             flag |= new MemCSE(rt).work();
+            //flag |= new ConstMerge(rt).work();
             flag |= new LICM(rt).work();//const-adv & loop-adv
             //System.out.println("?");
         }
+        //new ConstMerge(rt).work();
         //System.out.println("YES");
     }
 
