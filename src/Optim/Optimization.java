@@ -53,7 +53,7 @@ public class Optimization {
         new DomGen(func).workFunc();
     }
 
-    public void work1(){
+    public void work(){
         boolean flag = true;
         while (flag){
             flag = new DCE(rt).work();//adce
@@ -62,20 +62,15 @@ public class Optimization {
             flag |= new CSE(rt).work();
             flag |= new InstSimplify(rt).work();
 
+            boolean ok = true;
+            while (judgeInst() && ok) {
+                flag |= ok = new Inline(rt, true).work();//inline
+                flag |= new ConstMerge(rt).work();
+            }
+
             flag |= new MemCSE(rt).work();
             flag |= new LICM(rt).work();//const-adv & loop-adv
         }
-
-    }
-
-    public void work(){
-        work1();
-        boolean ok = true;
-        while (judgeInst() && ok) ok = new Inline(rt, false).work();//inline
-        work1();
-        ok = true;
-        while (judgeInst() && ok) ok = new Inline(rt, true).work();
-        work1();
         rt.funcs.forEach((s, func) -> mergeFuncBlock(func));
     }
 
