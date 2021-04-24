@@ -1,6 +1,7 @@
 package Optim;
 
 import MIR.Block;
+import MIR.Function;
 import MIR.IRinstruction.BaseInstruction;
 import MIR.IRinstruction.Binary;
 import MIR.IRoperand.BaseOperand;
@@ -17,6 +18,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
 
     public rootNode rt;
     public boolean flag = false;
+    public Function curFunc = null;
 
     public ConstMerge(rootNode rt){
         this.rt = rt;
@@ -32,21 +34,25 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
             if(p.hasNext()){
                 nxt = p.next();
                 p.previous();
+                p.previous();
+                p.next();
             } else break;
             if(inst instanceof Binary && nxt instanceof Binary){
                 Binary b1 = (Binary) inst, b2 = (Binary) nxt;
-                if(b1.rd == b2.lhs && b1.rhs instanceof ConstInt && b2.rhs instanceof ConstInt){
+                if(b1.rd == b2.lhs && b1.rd.positions.size() == 1 && b1.rhs instanceof ConstInt && b2.rhs instanceof ConstInt){
                     if(b1.opCode == Binary.binaryOpType.add && b2.opCode == Binary.binaryOpType.add){
+                        int tmp = ConstVal(b1.rhs) + ConstVal(b2.rhs);
+                        //if(curFunc.name.equals("globalFunction_add2"))System.out.println(tmp);
                         b2.lhs.deleteAppear(b2);
                         b1.lhs.deleteAppear(b1);
                         b2.lhs = b1.lhs;
                         b2.lhs.appear(b2);
-                        b2.rhs = new ConstInt(ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
+                        b2.rhs = new ConstInt(tmp, 32);
                         p.remove();
                         b1.deleteSelf(false);
                         flag = true;
                     }
-                    /*else if(b1.opCode == Binary.binaryOpType.mul && b2.opCode == Binary.binaryOpType.mul){
+                    else if(b1.opCode == Binary.binaryOpType.mul && b2.opCode == Binary.binaryOpType.mul){
                         b2.lhs.deleteAppear(b2);
                         b1.lhs.deleteAppear(b1);
                         b2.lhs = b1.lhs;
@@ -54,7 +60,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) * ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        //flag = true;
+                        flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.sub && b2.opCode == Binary.binaryOpType.sub){
                         b2.lhs.deleteAppear(b2);
@@ -62,10 +68,10 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.lhs = b1.lhs;
                         b2.lhs.appear(b2);
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
-                        System.out.println(b2);
+                        //System.out.println(b2);
                         p.remove();
                         b1.deleteSelf(false);
-                        //flag = true;
+                        flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.add && b2.opCode == Binary.binaryOpType.sub){
                         b2.lhs.deleteAppear(b2);
@@ -75,7 +81,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(-ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        //flag = true;
+                        flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.sub && b2.opCode == Binary.binaryOpType.add){
                         b2.lhs.deleteAppear(b2);
@@ -85,7 +91,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(-ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        //flag = true;
+                        flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.shl && b2.opCode == Binary.binaryOpType.shl){
                         b2.lhs.deleteAppear(b2);
@@ -95,7 +101,7 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        //flag = true;
+                        flag = true;
                     }
                     else if(b1.opCode == Binary.binaryOpType.ashr && b2.opCode == Binary.binaryOpType.ashr){
                         b2.lhs.deleteAppear(b2);
@@ -105,8 +111,8 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
                         b2.rhs = new ConstInt(ConstVal(b1.rhs) + ConstVal(b2.rhs), 32);
                         p.remove();
                         b1.deleteSelf(false);
-                        //flag = true;
-                    }*/
+                        flag = true;
+                    }
                 }
             }
         }
@@ -114,7 +120,11 @@ public class ConstMerge {//too many meaningless addi-inst in inline-adv
 
     public boolean work(){
         flag = false;
-        rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(this::workBlk));
+        rt.funcs.forEach((s, func) -> {
+            curFunc = func;
+            func.funcBlocks.forEach(this::workBlk);
+        });
+        //System.out.println(flag);
         return flag;
     }
 

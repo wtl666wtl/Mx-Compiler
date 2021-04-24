@@ -55,9 +55,9 @@ public class MemCSE {
             if(inst instanceof Load && ((Load)inst).addr.equals(globalVar)){
                 if(nowVal == null)nowVal = inst.rd;
                 else {
-                    p.set(new Zext(inst.rd, blk, nowVal));
-                    //inst.rd.replaceAllUse(nowVal);
-                    //p.remove();
+                    //p.set(new Zext(inst.rd, blk, nowVal));
+                    inst.rd.replaceAllUse(nowVal);
+                    p.remove();
                     inst.deleteSelf(false);
                 }
             } else if(inst instanceof Store && ((Store)inst).addr.equals(globalVar)){

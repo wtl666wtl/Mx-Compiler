@@ -1,5 +1,7 @@
 package Optim;
 
+import Backend.DomGen;
+import MIR.Block;
 import MIR.Function;
 import MIR.rootNode;
 
@@ -31,9 +33,29 @@ public class Optimization {
         return inst < instLimit;
     }
 
+    public void mergeFuncBlock(Function func){
+        boolean qwq = true;
+        while(qwq){
+            HashSet<Block> merge = new HashSet<>();
+            func.funcBlocks.forEach(blk -> {
+                if(blk.preblks.size() == 1 && blk.preblks.get(0).sucblks.size() == 1)
+                    merge.add(blk);
+            });
+            merge.forEach(blk -> {
+                Block preblk = blk.preblks.get(0);
+                preblk.deleteTerminator();
+                preblk.inlineMerge(blk);
+                if(func.outblk == blk)func.outblk = preblk;
+            });
+            func.funcBlocks.removeAll(merge);
+            qwq = !merge.isEmpty();
+        }
+        new DomGen(func).workFunc();
+    }
+
     public void work(){
         boolean flag = true;
-        while(flag){
+        while (flag){
             flag = new DCE(rt).work();//adce
             flag |= new ConstEval(rt).work();//const
             flag |= new ConstMerge(rt).work();//inline-adv
@@ -41,15 +63,15 @@ public class Optimization {
             flag |= new InstSimplify(rt).work();
 
             boolean ok = true;
-            while(judgeInst() && ok)flag |= ok = new Inline(rt).work();//inline
+            while(judgeInst() && ok) {
+                flag |= ok = new Inline(rt).work();//inline
+                flag |= new ConstMerge(rt).work();
+            }
 
             flag |= new MemCSE(rt).work();
-            //flag |= new ConstMerge(rt).work();
             flag |= new LICM(rt).work();//const-adv & loop-adv
-            //System.out.println("?");
         }
-        //new ConstMerge(rt).work();
-        //System.out.println("YES");
+        rt.funcs.forEach((s, func) -> mergeFuncBlock(func));
     }
 
 }
