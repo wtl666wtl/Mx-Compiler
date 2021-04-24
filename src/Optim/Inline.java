@@ -50,8 +50,7 @@ public class Inline {
                 if(inst instanceof Call){
                     Call it = (Call) inst;
                     if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
-                            && (inlineCnt < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee))
-                            && countInst(it.callee) < oneLimit)
+                            && (inlineCnt < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
                         waitList.put(it, func);
                 }
             }
