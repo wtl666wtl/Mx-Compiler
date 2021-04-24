@@ -19,6 +19,7 @@ public class SolvePhi {
 
     public void run(){
         rt.funcs.forEach((funcName, func) -> solveFuncPhi(func));
+        //rt.funcs.forEach((funcName, func) -> func.funcBlocks = FuncBlockCollector.work(func.inblk));
     }
 
     public void solveFuncPhi(Function func){
@@ -94,6 +95,15 @@ public class SolvePhi {
                 func.inblk = sucblk;
         });
         func.funcBlocks.removeAll(jmpOnlySet);
+
+        /*if(func.inblk.preblks.size() > 0){
+            Block old = func.inblk;
+            func.inblk = new Block("newIn");
+            func.inblk.addTerminator(new Br(func.inblk, null, old, null));
+            //func.funcBlocks.add(func.inblk);
+            func.funcBlocks = FuncBlockCollector.work(func.inblk);
+        }*/
+
     }
 
     public void solveBlkPhi(Block blk, phiToMove para){

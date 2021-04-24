@@ -121,7 +121,14 @@ public class Mem2Reg {
             if(!allocPhiMap.get(blk).isEmpty()){
                 allocPhiMap.get(blk).forEach((addr, phi) -> blk.preblks.forEach(preblk -> {
                     Block nowblk = preblk;
-                    while (!allocStMap.get(nowblk).containsKey(addr)) nowblk = nowblk.iDom;
+                    //System.out.println(func.name);
+                    //System.out.println(allocStMap.get(nowblk));
+                    //System.out.println(blk.name);
+                    //System.out.println(nowblk.name);
+                    while (!allocStMap.get(nowblk).containsKey(addr)) {
+                        nowblk = nowblk.iDom;
+                        //System.out.println(nowblk.name);
+                    }
                     phi.addOrigin(allocStMap.get(nowblk).get(addr), preblk);
                 }));
             }

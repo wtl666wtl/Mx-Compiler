@@ -140,14 +140,6 @@ public class RegAllocFinal {
         }));
         initial.removeAll(colors);
         initial.forEach(Reg::clear);
-        /*initial.forEach(reg -> {
-            reg.weight = 0;
-            reg.alias = null;
-            reg.color = null;
-            reg.degree = 0;
-            reg.edgeSet.clear();
-            reg.MvSet.clear();
-        });*/
 
         colors.forEach(phyReg -> {
             phyReg.degree = inf;
@@ -158,9 +150,7 @@ public class RegAllocFinal {
         });
 
         curFunc.blks.forEach(blk -> {
-            //for optimal? weight
             double weight = Math.pow(10, blk.loopLayers);
-            //double weight = 1;
             for(BaseAsmInstruction inst : blk.stmts){
                 inst.uses().forEach(reg -> reg.weight += weight);
                 if(inst.rd != null)

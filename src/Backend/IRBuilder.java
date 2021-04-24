@@ -270,6 +270,11 @@ public class IRBuilder implements ASTVisitor {
             rt.funcs.get("__init").appear.add(call);
         }
 
+        Block second = new Block("second");
+        curblk.addTerminator(new Br(curblk, null, second, null));
+        curblk = second;
+        curFunc.funcBlocks.add(curblk);
+
         it.body.accept(this);
 
         if(!curblk.isTerminated){
@@ -287,8 +292,6 @@ public class IRBuilder implements ASTVisitor {
             }
             returnList.add((Ret)curblk.getTerminator());
         }
-        //maybe need something! DFS?
-        //I add every blocks when create them
 
         if(returnList.size() > 1){
             Block rtRet = new Block("rtRet_blk");
@@ -319,7 +322,7 @@ public class IRBuilder implements ASTVisitor {
             if( ((IRPointerType)varPtr.type).pointTo instanceof IRPointerType )
                 curFunc.inblk.addInstAtStart( new Store(curFunc.inblk, varPtr, new ConstNull()) );
             else curFunc.inblk.addInstAtStart( new Store(curFunc.inblk, varPtr,
-                    new ConstInt(65536, ((IRPointerType)varPtr.type).pointTo.width)) );//???
+                    new ConstInt(65536, ((IRPointerType)varPtr.type).pointTo.width)) );
         });
 
         returnList.clear();
@@ -334,6 +337,7 @@ public class IRBuilder implements ASTVisitor {
         if(var.isGlobalVar){
             var.operand = new GlobalVar("GlobalVar_" + var.name + "_addr",
                     new IRPointerType(type, true));
+            //System.out.println(((GlobalVar)var.operand).name + " " + type);
             rt.globalVars.add((GlobalVar) var.operand);
             if(it.init != null){
                 curblk = rt.funcs.get("__init").outblk;
@@ -351,6 +355,7 @@ public class IRBuilder implements ASTVisitor {
                 var.operand = new Register("Parameter_" + var.name + "_addr",
                         new IRPointerType(type, true));
                 curFunc.varPtrs.add((Register) var.operand);
+                curFunc.ParamPtrs.add((Register) var.operand);
                 curblk.addInst(new Store(curblk, var.operand, p));
             }else {
                 if(curFunc == null){

@@ -26,6 +26,7 @@ public class DomGen {
     public void dfs(Block blk){
         if(dfsOrder.containsKey(blk))return;
         //init
+        //System.out.println(dfsOrder.size());
         dfsIndex.add(blk);
         sDom.put(blk, blk);
         dfsOrder.put(blk, ++total);
