@@ -5,7 +5,7 @@ import MIR.*;
 import Frontend.*;
 import Parser.*;
 import Util.MxErrorListener;
-import Optim.Optimization;
+import Optim.*;
 import Util.error.error;
 import Util.scope.globalScope;
 import org.antlr.v4.runtime.CharStreams;
@@ -57,6 +57,9 @@ public class Main {
 
             if(CodeGen) {
                 new IRBuilder(gScope, rt).visit(ASTRoot);
+                
+                new TRE(rt).work();
+                
                 new Mem2Reg(rt).work();
                 
                 new Optimization(rt).work();
