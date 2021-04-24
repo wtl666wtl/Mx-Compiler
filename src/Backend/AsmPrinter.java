@@ -3,9 +3,12 @@ package Backend;
 import Assembly.AsmBlock;
 import Assembly.AsmFunction;
 import Assembly.AsmInstruction.BaseAsmInstruction;
+import Assembly.AsmInstruction.Br;
+import Assembly.AsmInstruction.Bz;
 import Assembly.AsmInstruction.Jp;
 import Assembly.AsmOperand.GlobalReg;
 import Assembly.AsmRootNode;
+import MIR.IRinstruction.BaseInstruction;
 
 import java.io.PrintStream;
 import java.util.HashSet;
@@ -63,6 +66,31 @@ public class AsmPrinter {
                 for (BaseAsmInstruction j : i.instForCal) {
                     printInst(j);
                 }
+            }
+            if(i instanceof Br && ((Br)i).destblk.name.equals("." + curFunc.name + "_b." + (i.blk.blkCnt + 1))){
+                Jp j = (Jp)blk.stmts.getLast();
+                Br it = (Br) i;
+                AsmBlock tmp = it.destblk;
+                it.destblk = j.destBlk;
+                j.destBlk = tmp;
+                if(it.opCode == BaseAsmInstruction.cmpType.ne)it.opCode = BaseAsmInstruction.cmpType.eq;
+                else if(it.opCode == BaseAsmInstruction.cmpType.eq)it.opCode = BaseAsmInstruction.cmpType.ne;
+                else if(it.opCode == BaseAsmInstruction.cmpType.lt)it.opCode = BaseAsmInstruction.cmpType.ge;
+                else if(it.opCode == BaseAsmInstruction.cmpType.ge)it.opCode = BaseAsmInstruction.cmpType.lt;
+                printInst(i);
+                printInst(j);
+                break;
+            }
+            if(i instanceof Bz && ((Bz)i).destblk.name.equals("." + curFunc.name + "_b." + (i.blk.blkCnt + 1))){
+                Jp j = (Jp)blk.stmts.getLast();
+                Bz it = (Bz) i;
+                AsmBlock tmp = it.destblk;
+                it.destblk = j.destBlk;
+                j.destBlk = tmp;
+                if(it.opCode == BaseAsmInstruction.cmpType.eq)it.opCode = BaseAsmInstruction.cmpType.ne;
+                printInst(i);
+                printInst(j);
+                break;
             }
             printInst(i);//defaultOut.println("\t" + i.toString());
             if(i.sucAdd1 != null)printInst(i.sucAdd1);//defaultOut.println("\t" + i.sucAdd1.toString());
