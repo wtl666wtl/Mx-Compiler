@@ -52,7 +52,7 @@ public class Inline {
                 for(BaseInstruction inst : blk.stmts){
                     if(inst instanceof Call){
                         Call it = (Call) inst;
-                        if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
+                        if(!rt.builtInFuncs.containsKey(it.callee.name)
                                 && (inlineCnt < maxLimit && addInstCnt < addInstLimit))
                             waitList.put(it, func);
                     }
