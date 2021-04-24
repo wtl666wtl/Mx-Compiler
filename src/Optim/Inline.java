@@ -19,7 +19,7 @@ public class Inline {
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
     static public int maxLimit = 150;
-    static public int oneLimit = 300;
+    static public int oneLimit = 200;
 
     public Inline(rootNode rt){
         this.rt = rt;
