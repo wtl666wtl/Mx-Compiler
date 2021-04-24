@@ -7,8 +7,7 @@ import MIR.IRinstruction.*;
 import MIR.IRoperand.Register;
 import MIR.rootNode;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class DCE {
 
@@ -32,7 +31,7 @@ public class DCE {
         return !name.equals("malloc");
     }
 
-    public void eliminate(){
+    public void NaiveEliminate(){
         boolean hasChange = true;
         while(hasChange){
             hasChange = false;
@@ -125,9 +124,36 @@ public class DCE {
         if(flag)rt.funcs.forEach((s, func) -> new DomGen(func).workFunc());
     }
 
+    public void workFunc(Function func){
+        HashSet<BaseInstruction> needInst = new HashSet<>();
+        Queue<BaseInstruction> Q = new LinkedList<>();
+        HashMap<Register, BaseInstruction> regDefs = new HashMap<>();
+        func.funcBlocks.forEach(blk -> blk.stmts.forEach(it -> {
+            if(it.rd != null)regDefs.put(it.rd, it);
+            if(it instanceof Br || it instanceof Call || it instanceof Store || it instanceof Ret){
+                needInst.add(it);
+                Q.add(it);
+            }
+        }));
+        while(!Q.isEmpty()){
+            BaseInstruction it = Q.poll();
+            it.uses().forEach(operand -> {
+                if(operand instanceof Register && regDefs.containsKey(operand)){
+                    BaseInstruction def = regDefs.get(operand);
+                    if(!needInst.contains(def)){
+                        needInst.add(def);
+                        Q.add(def);
+                    }
+                }
+            });
+        }
+        func.funcBlocks.forEach(blk -> blk.stmts.removeIf(it -> !needInst.contains(it)));
+    }
+
     public boolean work(){
         flag = false;
-        eliminate();
+        NaiveEliminate();
+        rt.funcs.forEach((s, func) -> workFunc(func));
         return flag;
     }
 }
