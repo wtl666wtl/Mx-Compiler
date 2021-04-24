@@ -72,13 +72,14 @@ public class Inline {
                 if(inst instanceof Call){
                     Call it = (Call) inst;
                     if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
+                            //&& it.callee.outblk.getTerminator() instanceof Ret
                             && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
                         waitList.put(it, func);
                 }
             }
         }));
         if(waitList.isEmpty() && force){
-            //maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
+            maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
             badFuncs.clear();
             hasVisited.clear();
             stack.clear();
@@ -94,7 +95,8 @@ public class Inline {
                 for(BaseInstruction inst : blk.stmts){
                     if(inst instanceof Call){
                         Call it = (Call) inst;
-                        if(!rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
+                        if(it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
+                                //&& it.callee.outblk.getTerminator() instanceof Ret
                                 && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
                             waitList.put(it, func);
                     }
@@ -115,6 +117,7 @@ public class Inline {
         ++inlineCnt;
         if(inlineCnt > maxLimit || addInstCnt > addInstLimit)return;
         Function callee = call.callee;
+        if(!(callee.outblk.getTerminator() instanceof Ret))return;
         callee.appear.remove(call);
         //System.out.println("--");
         //System.out.println(callee.name);
@@ -175,6 +178,7 @@ public class Inline {
             }
         }));
         new DomGen(func).workFunc();
+        //System.out.println("Yes");
     }
 
     public boolean work(){

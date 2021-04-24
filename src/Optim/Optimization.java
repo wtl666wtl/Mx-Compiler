@@ -61,6 +61,7 @@ public class Optimization {
             flag |= new ConstMerge(rt).work();//inline-adv
             flag |= new CSE(rt).work();
             flag |= new InstSimplify(rt).work();
+            //flag |= new StrengthReduce(rt).work();
 
             flag |= new MemCSE(rt).work();
             flag |= new LICM(rt).work();//const-adv & loop-adv
@@ -69,6 +70,7 @@ public class Optimization {
     }
 
     public void work(){
+        rt.funcs.forEach((s, func) -> mergeFuncBlock(func));
         work1();
         boolean ok = true;
         while (judgeInst() && ok) ok = new Inline(rt, false).work();//inline
