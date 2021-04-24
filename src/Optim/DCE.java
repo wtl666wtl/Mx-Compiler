@@ -135,6 +135,9 @@ public class DCE {
                 Q.add(it);
             }
         }));
+        func.funcBlocks.forEach(blk -> blk.Phis.forEach((rd, it) -> {
+            if(it.rd != null)regDefs.put(it.rd, it);
+        }));
         while(!Q.isEmpty()){
             BaseInstruction it = Q.poll();
             it.uses().forEach(operand -> {
