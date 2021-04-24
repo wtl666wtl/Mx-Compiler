@@ -18,14 +18,16 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 200;
+    static public int maxLimit = 120;
     static public int oneLimit = 200;
     public HashSet<Function> badFuncs = new HashSet<>();
     public HashSet<Function> hasVisited = new HashSet<>();
     public Stack<Function> stack = new Stack<>();
+    public boolean force = false;
 
-    public Inline(rootNode rt){
+    public Inline(rootNode rt, boolean force){
         this.rt = rt;
+        this.force = force;
     }
 
     public int countInst(Function x){
@@ -70,12 +72,12 @@ public class Inline {
                 if(inst instanceof Call){
                     Call it = (Call) inst;
                     if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
-                            && (inlineCnt < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
+                            && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
                         waitList.put(it, func);
                 }
             }
         }));
-        if(waitList.isEmpty()){
+        if(waitList.isEmpty() && force){
             maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
             badFuncs.clear();
             hasVisited.clear();
@@ -93,7 +95,7 @@ public class Inline {
                     if(inst instanceof Call){
                         Call it = (Call) inst;
                         if(!rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
-                                && (inlineCnt < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
+                                && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
                             waitList.put(it, func);
                     }
                 }
