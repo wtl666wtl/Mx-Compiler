@@ -1,5 +1,6 @@
 package Optim;
 
+import Assembly.AsmInstruction.BaseAsmInstruction;
 import MIR.*;
 import MIR.IRinstruction.BaseInstruction;
 import MIR.IRinstruction.*;
@@ -8,6 +9,7 @@ import MIR.IRoperand.GlobalVar;
 import MIR.IRoperand.Register;
 import MIR.IRtype.*;
 
+import java.awt.*;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -16,7 +18,7 @@ public class LICM {
 
     public rootNode rt;
     public boolean flag = false;
-    public HashSet<GlobalVar> storeAddr = new HashSet<>();
+    public HashSet<BaseOperand> storeAddr = new HashSet<>();
     public boolean hasCall = false;
 
     public LICM(rootNode rt){
@@ -28,12 +30,28 @@ public class LICM {
         return pointTo instanceof IRIntType || pointTo instanceof IRBoolType || pointTo instanceof IRVoidType;
     }
 
-    public void tryAddPreHead(BaseInstruction inst, HashSet<Register> loopDefs, Queue<BaseInstruction> optimal){
+    public boolean LoadJudge(Loop loop, HashSet<Register> loopDefs, Load ld){
+        if(ld.addr instanceof GlobalVar)
+            return !storeAddr.contains(ld.addr);
+        if(ld.addr.type instanceof IRPointerType && ((IRPointerType)ld.addr.type).pointTo instanceof IRPointerType){
+            if(ld.addr instanceof Register && loopDefs.contains(ld.addr))return false;
+            for(Block blk : loop.loopBlocks)
+                for(BaseInstruction inst : blk.stmts){
+                    if(inst instanceof Store && ((Store)inst).addr.type instanceof IRPointerType
+                        && ((IRPointerType)((Store)inst).addr.type).pointTo instanceof IRPointerType)return false;
+                }
+            return true;
+        }
+        return false;
+    }
+
+    public void tryAddPreHead(BaseInstruction inst, Loop loop, HashSet<Register> loopDefs, Queue<BaseInstruction> optimal){
         if(inst instanceof Load){
             HashSet<BaseOperand> uses = inst.uses();
             uses.retainAll(loopDefs);
-            if(uses.isEmpty() && ((Load)inst).addr instanceof GlobalVar &&// simpleVar((GlobalVar) ((Load)inst).addr) &&
-                    !hasCall && !storeAddr.contains((GlobalVar)((Load)inst).addr)){
+            if(uses.isEmpty() && LoadJudge(loop, loopDefs,(Load)inst)
+                    //&& ((Load)inst).addr instanceof GlobalVar && !storeAddr.contains((GlobalVar)((Load)inst).addr)
+            ){
                 loopDefs.remove(inst.rd);
                 optimal.add(inst);
             }
@@ -67,12 +85,12 @@ public class LICM {
         storeAddr.clear();
         hasCall = false;
         loop.loopBlocks.forEach(blk -> blk.stmts.forEach(inst -> {
-            if(inst instanceof Store && ((Store)inst).addr instanceof GlobalVar)storeAddr.add((GlobalVar)((Store)inst).addr);
+            if(inst instanceof Store)storeAddr.add(((Store)inst).addr);
             if(inst instanceof Call && judge((Call) inst))hasCall = true;
         }));
 
         Block preHead = loop.preHead;
-        loop.loopBlocks.forEach(blk -> blk.stmts.forEach(inst -> tryAddPreHead(inst, loopDefs, optimal)));
+        loop.loopBlocks.forEach(blk -> blk.stmts.forEach(inst -> tryAddPreHead(inst, loop, loopDefs, optimal)));
 
         flag |= !optimal.isEmpty();
         while(!optimal.isEmpty()){
@@ -81,7 +99,7 @@ public class LICM {
             preHead.addInstBeforeTerminator(inst);
             inst.rd.positions.forEach(pos -> {
                 if(loopDefs.contains(pos.rd))
-                    tryAddPreHead(pos, loopDefs, optimal);
+                    tryAddPreHead(pos, loop, loopDefs, optimal);
             });
         }
         //if(preHead.stmts.size()>100)System.out.println(preHead.stmts.size());

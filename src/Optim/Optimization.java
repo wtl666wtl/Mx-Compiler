@@ -81,7 +81,8 @@ public class Optimization {
                 new DomGen(func).workFunc();
             }
         });
-        work1();
+        //work1();
+        new DCE(rt).work();
         boolean ok = true;
         while (judgeInst() && ok){
             Inline.taskLimit = (instLimit - inst) * 3 / 4;
