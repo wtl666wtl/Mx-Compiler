@@ -119,6 +119,42 @@ public class RegAllocFinal {
             } else jmpOnlySet.remove(blk);
         });
         func.blks.removeAll(jmpOnlySet);
+
+        HashSet<AsmBlock> BranchOnlySet = new HashSet<>();
+
+        func.blks.forEach(blk -> {
+            BaseAsmInstruction it = blk.stmts.getFirst();
+            if(it instanceof Br || it instanceof Bz)BranchOnlySet.add(blk);
+        });
+
+        BranchOnlySet.forEach(blk -> {
+            HashSet<AsmBlock> preblks = new HashSet<>(blk.preblks);
+            for (AsmBlock preblk : preblks) {
+                if(BranchOnlySet.contains(preblk) || preblk.stmts.size() < 2)continue;
+                BaseAsmInstruction inst2 = preblk.stmts.get(preblk.stmts.size()-2);
+                BaseAsmInstruction inst = preblk.stmts.getLast();
+                if (inst2 instanceof Br || inst2 instanceof Bz)continue;
+                if (inst instanceof Jp && ((Jp) inst).destBlk == blk){
+                    preblk.stmts.removeLast();
+                    if(blk.stmts.getFirst() instanceof Br){
+                        preblk.stmts.add(new Br(preblk, ((Br)blk.stmts.getFirst()).rs1,
+                                ((Br)blk.stmts.getFirst()).rs2, ((Br)blk.stmts.getFirst()).opCode, ((Br)blk.stmts.getFirst()).destblk));
+                    } else {
+                        preblk.stmts.add(new Bz(preblk, ((Bz)blk.stmts.getFirst()).rs,
+                                ((Bz)blk.stmts.getFirst()).opCode, ((Bz)blk.stmts.getFirst()).destblk));
+                    }
+                    preblk.stmts.add(new Jp(preblk, ((Jp)blk.stmts.getLast()).destBlk));
+                    preblk.sucblks.remove(blk);
+                    preblk.sucblks.addAll(blk.sucblks);
+                    blk.sucblks.forEach(sucblk -> sucblk.preblks.add(preblk));
+                    blk.preblks.remove(preblk);
+                }
+            }
+            if (blk.preblks.size() == 0){
+                blk.sucblks.forEach(sucblk -> sucblk.preblks.remove(blk));
+                //func.blks.remove(blk);
+            }
+        });
     }
 
     public void clearAll(){
