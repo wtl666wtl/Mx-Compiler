@@ -24,6 +24,14 @@ public class TRE {
     public void workFunc(Function func){
         func.funcBlocks = FuncBlockCollector.work(func.inblk);
 
+        boolean dangerous = true;
+        for(Block preblk : func.outblk.preblks){
+            if(!(preblk.stmts.size() >= 2
+                    && preblk.stmts.get(preblk.stmts.size()-2) instanceof Call
+                    && ((Call) preblk.stmts.get(preblk.stmts.size()-2)).loopCall))dangerous = false;
+        }
+        if(dangerous)return;
+
         func.funcBlocks.forEach(blk -> {
             for(ListIterator<BaseInstruction> p = blk.stmts.listIterator(); p.hasNext();){
                 BaseInstruction inst = p.next();
@@ -32,7 +40,7 @@ public class TRE {
                     if(!(it.loopCall && it == blk.stmts.get(blk.stmts.size() - 2) &&
                             (blk.stmts.getLast() instanceof Ret || func.outblk.stmts.getFirst() instanceof Ret && blk.stmts.getLast() instanceof Br && ((Br)blk.stmts.getLast()).iftrue == func.outblk) ))continue;
                     if(func.classPtr != null)continue;
-//p -> call
+                    //p -> call
                     //p+1 -> ret/jp to returnBlock(must be a Terminator)
                     blk.deleteTerminator();
                     while(blk.stmts.removeLast() != inst);
