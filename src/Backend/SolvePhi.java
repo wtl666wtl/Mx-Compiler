@@ -127,6 +127,7 @@ public class SolvePhi {
                 if(!para.useTime.containsKey(inst.rd)){
                     it.remove();
                     if(inst.origin instanceof Register){
+                       // System.out.println(inst);
                         if(para.useTime.get(inst.origin) > 1)
                             para.useTime.put(inst.origin, para.useTime.get(inst.origin) - 1);
                         else para.useTime.remove(inst.origin);
@@ -144,6 +145,7 @@ public class SolvePhi {
                     if(inst.origin != inst.rd){
                         Register mirror = new Register("mirror_" + inst.origin + "_Reg", inst.origin.type);
                         blk.addInstBeforeTerminator(new Move(mirror, blk, inst.origin, true));
+                        para.useTime.put(mirror, para.useTime.get(inst.origin) - 1);
                         para.useTime.remove(inst.origin);
                         para.moveLists.forEach(mv -> {
                             if(mv.origin == inst.origin)mv.origin = mirror;
