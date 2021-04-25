@@ -18,8 +18,8 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 200;
-    static public int maxLimitForSmallFunc = 200;
+    static public int maxLimit = 400;
+    static public int maxLimitForSmallFunc = 600;
     static public int oneLimitForSmallFunc = 30;
     static public int blkLimit = 50;
     static public int oneLimit = 100;
