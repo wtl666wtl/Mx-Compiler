@@ -88,7 +88,7 @@ public class Inline {
                     Call it = (Call) inst;
                     if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
                             //&& it.callee.outblk.getTerminator() instanceof Ret
-                            && it.callee.funcBlocks.size() < 50
+                            && it.callee.funcBlocks.size() < 40
                             && ((inlineCnt + waitList.size() < maxLimit ||
                                 countInst(it.callee) < oneLimitForSmallFunc && inlineCnt < maxLimitForSmallFunc)
                             && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee))){
@@ -133,7 +133,7 @@ public class Inline {
                         Call it = (Call) inst;
                         if(!rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
                                 //&& it.callee.outblk.getTerminator() instanceof Ret
-                                && it.callee.funcBlocks.size() < 50
+                                && it.callee.funcBlocks.size() < 40
                                 && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
                             waitList.put(it, func);
                     }
