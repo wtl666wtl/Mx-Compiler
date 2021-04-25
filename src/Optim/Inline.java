@@ -18,10 +18,10 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 120;
-    static public int maxLimitForSmallFunc = 400;
-    static public int oneLimitForSmallFunc = 50;
-    static public int oneLimit = 200;
+    static public int maxLimit = 400;
+    static public int maxLimitForSmallFunc = 600;
+    static public int oneLimitForSmallFunc = 30;
+    static public int oneLimit = 400;
     public HashSet<Function> badFuncs = new HashSet<>();
     public HashSet<Function> hasVisited = new HashSet<>();
     public Stack<Function> stack = new Stack<>();
@@ -57,6 +57,19 @@ public class Inline {
     }
 
     void tryInline(){
+
+        rt.funcs.forEach((s, func) -> {
+            //System.out.println(func.name);
+            //System.out.println(func.callFuncs);
+            func.callFuncs.clear();
+            func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
+                if(inst instanceof Call){
+                    Call it = (Call) inst;
+                    if(!rt.builtInFuncs.containsValue(it.callee))func.callFuncs.add(it.callee);
+                }
+            }));
+        });
+
         boolean change = false;
         HashSet<String> uselessFunc = new HashSet<>();
         HashSet<Function> goodFunc = new HashSet<>();
@@ -84,7 +97,7 @@ public class Inline {
             }
         }));
         if(waitList.isEmpty() && force){
-            maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
+            //maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
             badFuncs.clear();
             hasVisited.clear();
             stack.clear();
@@ -95,6 +108,8 @@ public class Inline {
             rt.funcs.forEach((s, func) -> {
                 if(!hasVisited.contains(func))DFS(func);
             });
+
+            //badFuncs.forEach(func -> System.out.println(func.name));
 
             rt.funcs.forEach((s, func) -> func.funcBlocks.forEach(blk -> {
                 for(BaseInstruction inst : blk.stmts){
@@ -117,6 +132,17 @@ public class Inline {
         }
         flag |= change;
         //System.out.println(addInstCnt);
+        rt.funcs.forEach((s, func) -> {
+            //System.out.println(func.name);
+            //System.out.println(func.callFuncs);
+            func.callFuncs.clear();
+            func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
+                if(inst instanceof Call){
+                    Call it = (Call) inst;
+                    if(!rt.builtInFuncs.containsValue(it.callee))func.callFuncs.add(it.callee);
+                }
+            }));
+        });
     }
 
     public void inlineFunc(Call call, Function func){
@@ -176,15 +202,15 @@ public class Inline {
         if(func.outblk.equals(curblk) && newIn != newOut) func.outblk = newOut;
         LinkedHashSet<Block> newBlocks = new LinkedHashSet<>();
         func.funcBlocks = FuncBlockCollector.work(func.inblk);
-        func.callFuncs.clear();
+        new DomGen(func).workFunc();
+        //System.out.println("Yes");
+        /*func.callFuncs.clear();
         func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
             if(inst instanceof Call){
                 Call it = (Call) inst;
                 if(!rt.builtInFuncs.containsValue(it.callee))func.callFuncs.add(it.callee);
             }
-        }));
-        new DomGen(func).workFunc();
-        //System.out.println("Yes");
+        }));*/
     }
 
     public boolean work(){
