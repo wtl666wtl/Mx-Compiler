@@ -18,14 +18,17 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 400;
-    static public int maxLimitForSmallFunc = 600;
+    static public int maxLimit = 200;
+    static public int maxLimitForSmallFunc = 200;
     static public int oneLimitForSmallFunc = 30;
-    static public int oneLimit = 200;
+    static public int blkLimit = 50;
+    static public int oneLimit = 100;
+    static public int taskLimit = 2000;
     public LinkedHashSet<Function> badFuncs = new LinkedHashSet<>();
     public HashSet<Function> hasVisited = new HashSet<>();
     public Stack<Function> stack = new Stack<>();
     public boolean force = false;
+    public int taskCnt = 0;
 
     public Inline(rootNode rt, boolean force){
         this.rt = rt;
@@ -134,8 +137,11 @@ public class Inline {
                         if(!rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
                                 //&& it.callee.outblk.getTerminator() instanceof Ret
                                 && it.callee.funcBlocks.size() < 40
-                                && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
+                                && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit){
                             waitList.put(it, func);
+                            //System.out.println(it.callee.name);
+                        }
+
                     }
                 }
             }));
@@ -165,6 +171,8 @@ public class Inline {
         ++inlineCnt;
         if(inlineCnt > maxLimit && (force || countInst(call.callee) > oneLimitForSmallFunc || inlineCnt > maxLimitForSmallFunc))return;
         Function callee = call.callee;
+        taskCnt += countInst(callee);
+        if(taskCnt >= taskLimit)return;
         if(!(callee.outblk.getTerminator() instanceof Ret))return;
         callee.appear.remove(call);
         //System.out.println("--");
@@ -218,6 +226,7 @@ public class Inline {
         if(func.outblk.equals(curblk) && newIn != newOut) func.outblk = newOut;
         LinkedHashSet<Block> newBlocks = new LinkedHashSet<>();
         func.funcBlocks = FuncBlockCollector.work(func.inblk);
+        //System.out.println(func);
         new DomGen(func).workFunc();
         //System.out.println("Yes");
         /*func.callFuncs.clear();
@@ -231,7 +240,7 @@ public class Inline {
 
     public boolean work(){
         flag = false;
-        int cnt = 0;
+        taskCnt = 0;
         tryInline();
         return flag;
     }
