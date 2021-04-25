@@ -19,6 +19,8 @@ public class Inline {
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
     static public int maxLimit = 120;
+    static public int maxLimitForSmallFunc = 400;
+    static public int oneLimitForSmallFunc = 50;
     static public int oneLimit = 200;
     public HashSet<Function> badFuncs = new HashSet<>();
     public HashSet<Function> hasVisited = new HashSet<>();
@@ -74,13 +76,15 @@ public class Inline {
                     if(!it.loopCall && it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name)
                             //&& it.callee.outblk.getTerminator() instanceof Ret
                             && it.callee.funcBlocks.size() < 50
-                            && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
+                            && ((inlineCnt + waitList.size() < maxLimit ||
+                                countInst(it.callee) < oneLimitForSmallFunc && inlineCnt < maxLimitForSmallFunc)
+                            && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
                         waitList.put(it, func);
                 }
             }
         }));
         if(waitList.isEmpty() && force){
-            //maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
+            maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
             badFuncs.clear();
             hasVisited.clear();
             stack.clear();
@@ -117,7 +121,7 @@ public class Inline {
 
     public void inlineFunc(Call call, Function func){
         ++inlineCnt;
-        if(inlineCnt > maxLimit || addInstCnt > addInstLimit)return;
+        if(inlineCnt > maxLimit && (countInst(call.callee) > oneLimitForSmallFunc || inlineCnt > maxLimitForSmallFunc))return;
         Function callee = call.callee;
         if(!(callee.outblk.getTerminator() instanceof Ret))return;
         callee.appear.remove(call);
