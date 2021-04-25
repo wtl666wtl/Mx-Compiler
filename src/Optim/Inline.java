@@ -18,7 +18,7 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 150;
+    static public int maxLimit = 120;
     static public int oneLimit = 200;
     public HashSet<Function> badFuncs = new HashSet<>();
     public HashSet<Function> hasVisited = new HashSet<>();
@@ -80,7 +80,7 @@ public class Inline {
             }
         }));
         if(waitList.isEmpty() && force){
-            maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
+            //maxLimit = inlineCnt + (maxLimit - inlineCnt) / 2;
             badFuncs.clear();
             hasVisited.clear();
             stack.clear();
