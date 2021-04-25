@@ -83,16 +83,16 @@ public class Optimization {
         });*/
         work1();
         boolean ok = true;
-        while (judgeInst() && ok){
+        /*while (judgeInst() && ok){
             ok = new Inline(rt, false).work();//inline
             //new ConstMerge(rt).work();
-        }
+        }*/
         work1();
         ok = true;
-        while (judgeInst() && ok){
+        /*while (judgeInst() && ok){
             ok = new Inline(rt, true).work();
             //new ConstMerge(rt).work();
-        }
+        }*/
         work1();
         //rt.funcs.forEach((s, func) -> mergeFuncBlock(func));
     }
