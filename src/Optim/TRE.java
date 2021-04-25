@@ -39,7 +39,7 @@ public class TRE {
                     Call it = (Call) inst;
                     if(!(it.loopCall && it == blk.stmts.get(blk.stmts.size() - 2) &&
                             (blk.stmts.getLast() instanceof Ret || func.outblk.stmts.getFirst() instanceof Ret && blk.stmts.getLast() instanceof Br && ((Br)blk.stmts.getLast()).iftrue == func.outblk) ))continue;
-                    if(func.classPtr != null)continue;
+                    //if(func.classPtr != null)continue;
                     //p -> call
                     //p+1 -> ret/jp to returnBlock(must be a Terminator)
                     blk.deleteTerminator();
