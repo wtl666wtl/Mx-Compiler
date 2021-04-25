@@ -94,7 +94,7 @@ public class Optimization {
             //new ConstMerge(rt).work();
         }
         work1();
-        rt.funcs.forEach((s, func) -> mergeFuncBlock(func));
+        //rt.funcs.forEach((s, func) -> mergeFuncBlock(func));
     }
 
 }
