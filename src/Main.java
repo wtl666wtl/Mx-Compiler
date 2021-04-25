@@ -62,7 +62,7 @@ public class Main {
                 
                 new Mem2Reg(rt).work();
                 
-                //new Optimization(rt).work();
+                new Optimization(rt).work();
                 
                 new SolvePhi(rt).run();
                 
