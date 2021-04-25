@@ -22,7 +22,7 @@ public class Inline {
     static public int maxLimitForSmallFunc = 1000;
     static public int oneLimitForSmallFunc = 30;
     static public int blkLimit = 50;
-    static public int oneLimit = 100;
+    static public int oneLimit = 500;
     static public int taskLimit = 2000;
     public LinkedHashSet<Function> badFuncs = new LinkedHashSet<>();
     public HashSet<Function> hasVisited = new HashSet<>();
