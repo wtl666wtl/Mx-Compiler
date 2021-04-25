@@ -18,11 +18,11 @@ public class Inline {
     static public int inlineCnt = 0;
     static public int addInstCnt = 0;
     static public int addInstLimit = 2147483647;//no limit
-    static public int maxLimit = 300;
+    static public int maxLimit = 400;
     static public int maxLimitForSmallFunc = 600;
     static public int oneLimitForSmallFunc = 30;
     static public int oneLimit = 200;
-    public HashSet<Function> badFuncs = new HashSet<>();
+    public LinkedHashSet<Function> badFuncs = new LinkedHashSet<>();
     public HashSet<Function> hasVisited = new HashSet<>();
     public Stack<Function> stack = new Stack<>();
     public boolean force = false;
@@ -65,7 +65,7 @@ public class Inline {
             func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
                 if(inst instanceof Call){
                     Call it = (Call) inst;
-                    if(!rt.builtInFuncs.containsValue(it.callee) && it.callee != func)func.callFuncs.add(it.callee);
+                    if(!rt.builtInFuncs.containsValue(it.callee))func.callFuncs.add(it.callee);
                 }
             }));
         });
@@ -91,13 +91,29 @@ public class Inline {
                             && it.callee.funcBlocks.size() < 50
                             && ((inlineCnt + waitList.size() < maxLimit ||
                                 countInst(it.callee) < oneLimitForSmallFunc && inlineCnt < maxLimitForSmallFunc)
-                            && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee)))
+                            && addInstCnt < addInstLimit && goodFunc.contains(((Call) inst).callee))){
                         waitList.put(it, func);
+                        //System.out.println(it.callee.name);
+                    }
+
                 }
             }
         }));
         if(waitList.isEmpty() && force){
-            maxLimit = maxLimit / 2;
+
+            rt.funcs.forEach((s, func) -> {
+                //System.out.println(func.name);
+                //System.out.println(func.callFuncs);
+                func.callFuncs.clear();
+                func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
+                    if(inst instanceof Call){
+                        Call it = (Call) inst;
+                        if(!rt.builtInFuncs.containsValue(it.callee) && it.callee != func)func.callFuncs.add(it.callee);
+                    }
+                }));
+            });
+
+            maxLimit = 200;
             badFuncs.clear();
             hasVisited.clear();
             stack.clear();
@@ -115,7 +131,7 @@ public class Inline {
                 for(BaseInstruction inst : blk.stmts){
                     if(inst instanceof Call){
                         Call it = (Call) inst;
-                        if(it.callee != func && !rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
+                        if(!rt.builtInFuncs.containsKey(it.callee.name) && !badFuncs.contains(it.callee)
                                 //&& it.callee.outblk.getTerminator() instanceof Ret
                                 && it.callee.funcBlocks.size() < 50
                                 && (inlineCnt + waitList.size() < maxLimit && addInstCnt < addInstLimit) && countInst(it.callee) < oneLimit)
@@ -139,7 +155,7 @@ public class Inline {
             func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
                 if(inst instanceof Call){
                     Call it = (Call) inst;
-                    if(!rt.builtInFuncs.containsValue(it.callee) && it.callee != func)func.callFuncs.add(it.callee);
+                    if(!rt.builtInFuncs.containsValue(it.callee))func.callFuncs.add(it.callee);
                 }
             }));
         });
@@ -147,7 +163,7 @@ public class Inline {
 
     public void inlineFunc(Call call, Function func){
         ++inlineCnt;
-        if(inlineCnt > maxLimit && (!force || countInst(call.callee) > oneLimitForSmallFunc || inlineCnt > maxLimitForSmallFunc))return;
+        if(inlineCnt > maxLimit && (force || countInst(call.callee) > oneLimitForSmallFunc || inlineCnt > maxLimitForSmallFunc))return;
         Function callee = call.callee;
         if(!(callee.outblk.getTerminator() instanceof Ret))return;
         callee.appear.remove(call);
