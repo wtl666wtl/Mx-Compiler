@@ -31,8 +31,9 @@ public class LICM {
     }
 
     public boolean LoadJudge(Loop loop, HashSet<Register> loopDefs, Load ld){
+        if(hasCall)return false;
         if(ld.addr instanceof GlobalVar)
-            return !storeAddr.contains(ld.addr) && !hasCall;
+            return !storeAddr.contains(ld.addr);
         if(!(ld.addr instanceof Register))return false;
         if(ld.addr.type instanceof IRPointerType && ((IRPointerType)ld.addr.type).pointTo instanceof IRPointerType){
             if(loopDefs.contains(ld.addr))return false;
