@@ -70,7 +70,7 @@ public class Optimization {
     }
 
     public void work(){
-        /*rt.funcs.forEach((s, func) -> {
+        rt.funcs.forEach((s, func) -> {
             //System.out.println(func.name);
             if(func.inblk.sucblks.size() == 1 && func.inblk.sucblks.get(0).preblks.size() == 1){
                 Block second = func.inblk.sucblks.get(0);
@@ -80,18 +80,18 @@ public class Optimization {
                 func.funcBlocks.remove(second);
                 new DomGen(func).workFunc();
             }
-        });*/
+        });
         work1();
         boolean ok = true;
         while (judgeInst() && ok){
             ok = new Inline(rt, false).work();//inline
-            new ConstMerge(rt).work();
+            //new ConstMerge(rt).work();
         }
         work1();
         ok = true;
         while (judgeInst() && ok){
             ok = new Inline(rt, true).work();
-            new ConstMerge(rt).work();
+            //new ConstMerge(rt).work();
         }
         work1();
         rt.funcs.forEach((s, func) -> mergeFuncBlock(func));
