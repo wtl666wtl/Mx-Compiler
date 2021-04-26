@@ -120,7 +120,7 @@ public class RegAllocFinal {
         });
         func.blks.removeAll(jmpOnlySet);
 
-        HashSet<AsmBlock> BranchOnlySet = new HashSet<>();
+        /*HashSet<AsmBlock> BranchOnlySet = new HashSet<>();
 
         func.blks.forEach(blk -> {
             BaseAsmInstruction it = blk.stmts.getFirst();
@@ -154,7 +154,7 @@ public class RegAllocFinal {
                 blk.sucblks.forEach(sucblk -> sucblk.preblks.remove(blk));
                 //func.blks.remove(blk);
             }
-        });
+        });*/
     }
 
     public void clearAll(){
