@@ -30,17 +30,40 @@ public class LICM {
         return pointTo instanceof IRIntType || pointTo instanceof IRBoolType || pointTo instanceof IRVoidType;
     }
 
+    public boolean judgeCall(Function x, GlobalVar y){
+        boolean f = false;
+        for(Block blk : x.funcBlocks)
+            for(BaseInstruction it : blk.stmts){
+                if(it instanceof Store && ((Store) it).addr == y)f = true;
+                if(it instanceof Call)f = true;
+            }
+        return f;
+    }
+
     public boolean LoadJudge(Loop loop, HashSet<Register> loopDefs, Load ld){
+        if(ld.addr instanceof GlobalVar) {
+            hasCall = false;
+            loop.loopBlocks.forEach(blk -> blk.stmts.forEach(inst -> {
+                if(inst instanceof Call && judgeCall(((Call) inst).callee, (GlobalVar)ld.addr))hasCall = true;
+            }));
+            return !storeAddr.contains(ld.addr) && !hasCall;
+        }
         if(hasCall)return false;
-        if(ld.addr instanceof GlobalVar)
-            return !storeAddr.contains(ld.addr);
         if(!(ld.addr instanceof Register))return false;
         if(ld.addr.type instanceof IRPointerType && ((IRPointerType)ld.addr.type).pointTo instanceof IRPointerType){
             if(loopDefs.contains(ld.addr))return false;
             for(Block blk : loop.loopBlocks)
                 for(BaseInstruction inst : blk.stmts){
                     if(inst instanceof Store && ((Store)inst).addr.type instanceof IRPointerType
-                        && ((IRPointerType)((Store)inst).addr.type).pointTo instanceof IRPointerType)return false;
+                            && ((IRPointerType)((Store)inst).addr.type).pointTo instanceof IRPointerType)return false;
+                }
+            return true;
+        }
+        if(ld.addr.type instanceof IRPointerType){
+            if(loopDefs.contains(ld.addr))return false;
+            for(Block blk : loop.loopBlocks)
+                for(BaseInstruction inst : blk.stmts){
+                    if(inst instanceof Store)return false;
                 }
             return true;
         }
@@ -52,7 +75,7 @@ public class LICM {
             HashSet<BaseOperand> uses = inst.uses();
             uses.retainAll(loopDefs);
             if(uses.isEmpty() && LoadJudge(loop, loopDefs,(Load)inst)
-                    //&& ((Load)inst).addr instanceof GlobalVar && !storeAddr.contains((GlobalVar)((Load)inst).addr)
+                //&& ((Load)inst).addr instanceof GlobalVar && !storeAddr.contains((GlobalVar)((Load)inst).addr)
             ){
                 loopDefs.remove(inst.rd);
                 optimal.add(inst);
