@@ -10,26 +10,6 @@ import java.util.*;
 
 public class RegAllocFinal {
 
-    public static class edge {
-
-        public Reg x, y;
-
-        public edge(Reg u, Reg v) {
-            this.x = u;
-            this.y = v;
-        }
-
-        @Override
-        public boolean equals(Object it) {
-            return (it instanceof edge && ((edge) it).x == x && ((edge) it).y == y);
-        }
-
-        @Override
-        public int hashCode() {
-            return x.toString().hashCode() ^ y.toString().hashCode();
-        }
-    }
-
     public AsmRootNode AsmRt;
     public int stackLength = 0;
     public AsmFunction curFunc;
@@ -129,12 +109,14 @@ public class RegAllocFinal {
 
         BranchOnlySet.forEach(blk -> {
             HashSet<AsmBlock> preblks = new HashSet<>(blk.preblks);
+            if(preblks.size()==0)System.out.println(preblks.size());
             for (AsmBlock preblk : preblks) {
                 if(BranchOnlySet.contains(preblk) || preblk.stmts.size() < 2)continue;
-                BaseAsmInstruction inst2 = preblk.stmts.get(preblk.stmts.size()-2);
+                BaseAsmInstruction inst2 = preblk.stmts.get(preblk.stmts.size() - 2);
                 BaseAsmInstruction inst = preblk.stmts.getLast();
                 if (inst2 instanceof Br || inst2 instanceof Bz)continue;
                 if (inst instanceof Jp && ((Jp) inst).destBlk == blk){
+                    if(blk.name.equals(".main_if_terminal2_inline41_inline43"))System.out.println(inst2);
                     preblk.stmts.removeLast();
                     if(blk.stmts.getFirst() instanceof Br){
                         preblk.stmts.add(new Br(preblk, ((Br)blk.stmts.getFirst()).rs1,
@@ -150,11 +132,22 @@ public class RegAllocFinal {
                     blk.preblks.remove(preblk);
                 }
             }
+            //if(blk.preblks.size()==0)System.out.println(blk.name);
             if (blk.preblks.size() == 0){
                 blk.sucblks.forEach(sucblk -> sucblk.preblks.remove(blk));
-                //func.blks.remove(blk);
+                func.blks.remove(blk);
             }
-        });*/
+        });
+
+        HashSet<AsmBlock> uselessSet = new HashSet<>();
+
+        func.blks.forEach(blk -> {
+            if (blk.preblks.size() == 0){
+                blk.sucblks.forEach(sucblk -> sucblk.preblks.remove(blk));
+                uselessSet.add(blk);
+            }
+        });
+        func.blks.removeAll(uselessSet);*/
     }
 
     public void clearAll(){
