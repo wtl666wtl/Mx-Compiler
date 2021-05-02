@@ -18,7 +18,6 @@ public class RegAllocFinal {
     public HashSet<Mv> MvWorkList = new LinkedHashSet<>();
     public HashSet<Mv> activeMvSet = new HashSet<>();
     public HashSet<Mv> mergedMvSet = new HashSet<>();
-    public HashSet<Mv> bindedMvSet = new HashSet<>();
     public HashSet<Mv> frozenMvSet = new HashSet<>();
 
     public HashSet<Reg> spillWorkList = new LinkedHashSet<>();
@@ -162,7 +161,6 @@ public class RegAllocFinal {
         MvWorkList.clear();
         activeMvSet.clear();
         mergedMvSet.clear();
-        bindedMvSet.clear();
         frozenMvSet.clear();
 
         selectStack.clear();
