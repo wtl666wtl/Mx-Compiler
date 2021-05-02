@@ -1,6 +1,6 @@
 package Optim;
 
-import Backend.DomGen;
+import Backend.DominatorTree;
 import Backend.FuncBlockCollector;
 import MIR.Block;
 import MIR.IRinstruction.*;
@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ConstEval {
 
@@ -71,7 +70,7 @@ public class ConstEval {
             blk.sucblks.forEach(blk2 -> System.out.println(blk2.name));
         }));
         System.out.println("===END===");*/
-        rt.funcs.forEach((s, func) -> new DomGen(func).workFunc());
+        rt.funcs.forEach((s, func) -> new DominatorTree(func).workFunc());
         return flag;
     }
 

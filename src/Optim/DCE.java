@@ -1,7 +1,6 @@
 package Optim;
 
-import Assembly.AsmOperand.Reg;
-import Backend.DomGen;
+import Backend.DominatorTree;
 import MIR.*;
 import MIR.IRinstruction.*;
 import MIR.IRoperand.Register;
@@ -121,7 +120,7 @@ public class DCE {
             }
             flag |= hasChange;
         }
-        if(flag)rt.funcs.forEach((s, func) -> new DomGen(func).workFunc());
+        if(flag)rt.funcs.forEach((s, func) -> new DominatorTree(func).workFunc());
     }
 
     public void workFunc(Function func){

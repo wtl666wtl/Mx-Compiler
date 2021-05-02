@@ -1,6 +1,6 @@
 package Optim;
 
-import Backend.DomGen;
+import Backend.DominatorTree;
 import MIR.Block;
 import MIR.Function;
 import MIR.rootNode;
@@ -50,7 +50,7 @@ public class Optimization {
             func.funcBlocks.removeAll(merge);
             qwq = !merge.isEmpty();
         }
-        new DomGen(func).workFunc();
+        new DominatorTree(func).workFunc();
     }
 
     public void work1(){
@@ -63,6 +63,8 @@ public class Optimization {
             flag |= new InstSimplify(rt).work();
             //flag |= new StrengthReduce(rt).work();
 
+            //AliasAnalysis alias = new AliasAnalysis(rt);
+            //alias.work();
             flag |= new MemCSE(rt).work();
             flag |= new LICM(rt).work();//const-adv & loop-adv
         }
@@ -78,14 +80,15 @@ public class Optimization {
                 func.inblk.inlineMerge(second);
                 if(func.outblk == second)func.outblk = func.inblk;
                 func.funcBlocks.remove(second);
-                new DomGen(func).workFunc();
+                new DominatorTree(func).workFunc();
             }
         });
         //work1();
         new DCE(rt).work();
+        new InstSimplify(rt).work();
         boolean ok = true;
         while (judgeInst() && ok){
-            Inline.taskLimit = (instLimit - inst) * 3 / 4;
+            Inline.taskLimit = (instLimit - inst) * 5 / 4;
             ok = new Inline(rt, false).work();//inline
             new ConstMerge(rt).work();
         }

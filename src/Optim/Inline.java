@@ -1,6 +1,6 @@
 package Optim;
 
-import Backend.DomGen;
+import Backend.DominatorTree;
 import Backend.FuncBlockCollector;
 import Backend.inlineCorrespond;
 import MIR.Block;
@@ -20,7 +20,7 @@ public class Inline {
     static public int addInstLimit = 2147483647;//no limit
     static public int maxLimit = 750;
     static public int maxLimitForSmallFunc = 1000;
-    static public int oneLimitForSmallFunc = 30;
+    static public int oneLimitForSmallFunc = 50;
     static public int blkLimit = 50;
     static public int oneLimit = 2000;
     static public int taskLimit = 2000;
@@ -227,7 +227,7 @@ public class Inline {
         LinkedHashSet<Block> newBlocks = new LinkedHashSet<>();
         func.funcBlocks = FuncBlockCollector.work(func.inblk);
         //System.out.println(func);
-        new DomGen(func).workFunc();
+        new DominatorTree(func).workFunc();
         //System.out.println("Yes");
         /*func.callFuncs.clear();
         func.funcBlocks.forEach(blk -> blk.stmts.forEach(inst ->{
