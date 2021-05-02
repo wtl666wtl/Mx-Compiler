@@ -59,6 +59,15 @@ public class InstSimplify {
                 if(it.opCode == Binary.binaryOpType.add){
                     if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 0)ans = it.lhs;
                     else if(it.lhs instanceof ConstInt && ConstVal(it.lhs) == 0)ans = it.rhs;
+                } else if(it.opCode == Binary.binaryOpType.or){
+                    if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 0)ans = it.lhs;
+                    else if(it.lhs instanceof ConstInt && ConstVal(it.lhs) == 0)ans = it.rhs;
+                } else if(it.opCode == Binary.binaryOpType.xor){
+                    if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 0)ans = it.lhs;
+                    else if(it.lhs instanceof ConstInt && ConstVal(it.lhs) == 0)ans = it.rhs;
+                } else if(it.opCode == Binary.binaryOpType.and){
+                    if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 0)ans = new ConstInt(0, 32);
+                    else if(it.lhs instanceof ConstInt && ConstVal(it.lhs) == 0)ans = new ConstInt(0, 32);
                 } else if(it.opCode == Binary.binaryOpType.sub){
                     if(it.rhs instanceof ConstInt && ConstVal(it.rhs) == 0)ans = it.lhs;
                 } else if(it.opCode == Binary.binaryOpType.sdiv){
